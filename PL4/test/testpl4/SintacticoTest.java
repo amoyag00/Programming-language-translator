@@ -1,110 +1,173 @@
 package testpl4;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import pl4.Lexico;
 //import pl4.Lexico;
 import pl4.Sintactico;
 
 class SintacticoTest {
 
+	Sintactico createASint(String text) throws Exception {
+
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		Reader reader = new InputStreamReader(stream);
+		Lexico lex = new Lexico(reader);
+		Sintactico asd = new Sintactico(lex);
+
+		return asd;
+	}
 
 	@Test
-	void test1() {
+	void test1() throws Exception {
+
+		Sintactico asd;
 		
-		Sintactico asd = new Sintactico("LITERAL", "SIGNO_SUMA", "LITERAL", "SIGNO_RESTA", "LITERAL");
+		asd = createASint("2+2-2;");
 		asd.S();
-		assertEquals("LITERAL SIGNO_SUMA LITERAL SIGNO_RESTA LITERAL",asd.getTokensCorrectos());
+		assertEquals("LITERAL SIGNO_SUMA LITERAL SIGNO_RESTA LITERAL PTO_COMA", asd.getTokensCorrectos());
+		
 	}
-	
+
 	@Test
 	void testEjemplo1() {
-		//(12+3-4)
-		Sintactico asd = new Sintactico("ABRE_PAR","LITERAL", "SIGNO_SUMA", "LITERAL", "SIGNO_RESTA", "LITERAL", "CIERRA_PAR");
-		asd.S();
-		assertEquals("ABRE_PAR LITERAL SIGNO_SUMA LITERAL SIGNO_RESTA LITERAL CIERRA_PAR",asd.getTokensCorrectos());
+		// (12+3-4)
+		Sintactico asd;
+		try {
+			asd = createASint("(12+3-4);");
+			asd.S();
+			assertEquals("ABRE_PAR LITERAL SIGNO_SUMA LITERAL SIGNO_RESTA LITERAL CIERRA_PAR PTO_COMA", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testEjemplo2() {
-		//123+32
-		Sintactico asd = new Sintactico("LITERAL", "SIGNO_SUMA", "LITERAL");
-		asd.S();
-		assertEquals("LITERAL SIGNO_SUMA LITERAL",asd.getTokensCorrectos());
+		// 123+32
+		Sintactico asd;
+		try {
+			asd = createASint("123+32;");
+			asd.S();
+			assertEquals("LITERAL SIGNO_SUMA LITERAL PTO_COMA", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testEjemplo3() {
-		//34
-		Sintactico asd = new Sintactico("LITERAL");
-		asd.S();
-		assertEquals("LITERAL",asd.getTokensCorrectos());
+		// 34
+		Sintactico asd;
+		try {
+			asd = createASint("34;");
+			asd.S();
+			assertEquals("LITERAL PTO_COMA", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testEjemplo4() {
-		//+
-		Sintactico asd = new Sintactico("SIGNO_SUMA");
-		asd.S();
-		assertEquals("Error",asd.getTokensCorrectos());
+		// +
+		Sintactico asd;
+		try {
+			asd = createASint("+;");
+			asd.S();
+			assertEquals("Error", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testEjemplo5() {
-		//12-3(
-		Sintactico asd = new Sintactico("LITERAL", "SIGNO_RESTA", "LITERAL", "ABRE_PAR");
-		do {
+		// 12-3(
+		Sintactico asd;
+		try {
+			asd = createASint("12-3(;");
 			asd.S();
-		} while (!asd.currentType().equals("EOF"));
-
-		assertEquals("Error",asd.getTokensCorrectos());
+			assertEquals("Error", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testID() {
-		//a+b
-		Sintactico asd = new Sintactico("ID", "SIGNO_SUMA", "ID");
-		asd.S();
-		assertEquals("ID SIGNO_SUMA ID",asd.getTokensCorrectos());
+		// a+b
+		Sintactico asd;
+		try {
+			asd = createASint("a+b;");
+			asd.S();
+			assertEquals("ID SIGNO_SUMA ID PTO_COMA", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testMult() {
-		//(a+b)*5
-		Sintactico asd = new Sintactico("ABRE_PAR","ID", "SIGNO_SUMA", "ID", "CIERRA_PAR","SIGNO_MULT", "LITERAL");
-		asd.S();
-		assertEquals("ABRE_PAR ID SIGNO_SUMA ID CIERRA_PAR SIGNO_MULT LITERAL",asd.getTokensCorrectos());
+		// (a+b)*5
+		Sintactico asd;
+		try {
+			asd = createASint("(a+b)*5;");
+			asd.S();
+			assertEquals("ABRE_PAR ID SIGNO_SUMA ID CIERRA_PAR SIGNO_MULT LITERAL PTO_COMA", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testDiv() {
 		// 4/3+a
-		Sintactico asd = new Sintactico("LITERAL", "SIGNO_DIV", "LITERAL", "SIGNO_SUMA", "ID");
-		asd.S();
-		assertEquals("LITERAL SIGNO_DIV LITERAL SIGNO_SUMA ID",asd.getTokensCorrectos());
+		Sintactico asd;
+		try {
+			asd = createASint("4/3+a;");
+			asd.S();
+			assertEquals("LITERAL SIGNO_DIV LITERAL SIGNO_SUMA ID PTO_COMA", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testInvalido() {
 		// 4/+a
-		Sintactico asd = new Sintactico("LITERAL", "SIGNO_DIV", "!", "SIGNO_SUMA", "ID");
-		asd.S();
-		assertEquals("Error",asd.getTokensCorrectos());
+		Sintactico asd;
+		try {
+			asd = createASint("4/+a;");
+			asd.S();
+			assertEquals("Error", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	void testNoMatch() {
 		// (4+a!*5
-		Sintactico asd = new Sintactico("ABRE_PAR","LITERAL","SIGNO_SUMA", "ID","!","SIGNO_MULT", "LITERAL");
-		asd.S();
-		assertEquals("Error",asd.getTokensCorrectos());
+		Sintactico asd;
+		try {
+			asd = createASint("(4+a!*5;");
+			asd.S();
+			assertEquals("Error", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
 
 }

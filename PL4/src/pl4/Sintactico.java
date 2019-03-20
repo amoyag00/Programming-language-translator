@@ -10,23 +10,24 @@ import java.util.LinkedList;
  */
 public class Sintactico {
 
-	//private static Lexico analizadorLexico = null;
-	private Token currentToken = null;
-	private LinkedList<Token> tokens;//Testing only
+	private static Lexico analizadorLexico = null;
+	private Yytoken currentToken = null;
+	private LinkedList<Yytoken> tokens;//Testing only
 	private String tokensCorrectos;
 
-	/*public Sintactico(Lexico lex) {
+	public Sintactico(Lexico lex) {
 		this.analizadorLexico = lex;
-	}*/
+		this.tokensCorrectos = "";
+	}
 	
 	/**
 	 * Testing
 	 * @param lexemas
 	 */
 	public Sintactico(String... lexemas) {
-		this.tokens=new LinkedList<Token>();
+		this.tokens=new LinkedList<Yytoken>();
 		for( String lexema: lexemas) {
-			this.tokens.addLast(new Token(lexema));
+			this.tokens.addLast(new Yytoken(lexema));
 		}
 		this.tokensCorrectos="";
 	}
@@ -37,14 +38,14 @@ public class Sintactico {
 
 	/**
 	 * Obtiene el siguiente token
-	 *
+	 */
 	private void nextToken() {
-		Token prevToken = this.currentToken;
+		Yytoken prevToken = this.currentToken;
 		try {
 			this.currentToken = this.analizadorLexico.yylex();
 			if (this.currentToken == null) {
 				System.out.println("Fin de fichero");
-				this.currentToken = new Token(0, "", "EOF", prevToken.getLine(), prevToken.getColumn());
+				this.currentToken = new Yytoken(0, "", "EOF", prevToken.getLine(), prevToken.getColumn());
 
 			}
 		} catch (IOException e) {
@@ -56,24 +57,24 @@ public class Sintactico {
 			}
 		}
 		prevToken = null;
-	}*/
+	}
 	
 	/**
 	 * Obtiene el siguiente token. Utilizado para realizar pruebas unitarias.
-	 */
+	 *
 	private void nextTokenTest() {
 		Token prevToken = this.currentToken;
 
 		if (this.tokens.isEmpty()) {
 			System.out.println("Fin de fichero");
-			this.currentToken = new Token(0, "", "EOF", prevToken.getLine(), prevToken.getColumn());
+			this.currentToken = new Yytoken(0, "", "EOF", prevToken.getLine(), prevToken.getColumn());
 
 		} else {
 			this.currentToken = this.tokens.removeFirst();
 		}
 
 		prevToken = null;
-	}
+	}*/
 
 	/*Producciones
 	* S-> E
@@ -90,10 +91,19 @@ public class Sintactico {
 	 * S-> E
 	 */
 	public void S() {
+		
+		this.nextToken();
+		
+		if(this.currentType().equals("EOF")) {
+			//System.out.println("Fin de Fichero");
+			return;
+		}
+		
 		System.out.println("Comienza la sentencia");
-		//this.nextToken();
-		this.nextTokenTest();
+		//this.nextTokenTest();
+		
 		E();
+		match("PTO_COMA");
 		System.out.println("Fin de la sentencia");
 	}
 	
@@ -157,6 +167,7 @@ public class Sintactico {
 			
 		default:
 			this.currentToken.Error("Validando 'F'");
+			this.match("EXPRESION");
 			this.tokensCorrectos="Error ";
 		}
 	}
@@ -183,9 +194,9 @@ public class Sintactico {
 		}
 	}
 	
-	/*public String yytext() {
+	public String yytext() {
 		return this.analizadorLexico.yytext();
-	}*/
+	}
 
 //Fin Producciones
 
@@ -196,8 +207,11 @@ public class Sintactico {
 	public void match(String refStrToken) {
 		if (currentType().equals(refStrToken)) {
 			System.out.println("Token correcto: " + currentType());
-			//nextToken();
-			this.nextTokenTest();
+			if(!currentType().equals("PTO_COMA")) {
+				nextToken();
+			}
+			
+			//this.nextTokenTest();
 			this.tokensCorrectos+= refStrToken+" ";
 		} else {
 			this.currentToken.ErrorMatch(refStrToken);
@@ -214,14 +228,14 @@ public class Sintactico {
 		if (argv.length == 0) {
 			System.out.println("Uso : java Parser  <inputfile)>");
 		} else {
-
+			Sintactico asd = null;
 			try {
 				FileInputStream stream = new FileInputStream(argv[0]);
 				Reader reader = new InputStreamReader(stream);
 				Lexico lex = new Lexico(reader);
-				Sintactico asd = new Sintactico(lex);
-				
+				asd = new Sintactico(lex);
 				do {
+					
 					asd.S();
 				} while (!asd.currentType().equals("EOF"));
 
