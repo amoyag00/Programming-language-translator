@@ -16,7 +16,14 @@ import org.junit.jupiter.api.Test;
 import pl4.Lexico;
 //import pl4.Lexico;
 import pl4.Sintactico;
-
+/**
+ * @author Carlos Fernández Valladares / Samuel Lebrero Alonso / Alejandro Moya
+ *         García 
+ *         Consideraciones: El símbolo de potenciación no se considera
+ *         como válido(^) y no se considera la resta unaria (-x)
+ *         
+ *         Practica: Practica  Analizador Sintáctico Descendente Recursivo
+ */
 class SintacticoTest {
 
 	Sintactico createASint(String text) throws Exception {
@@ -163,6 +170,19 @@ class SintacticoTest {
 		Sintactico asd;
 		try {
 			asd = createASint("(4+a!*5;");
+			asd.S();
+			assertEquals("Error", asd.getTokensCorrectos());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	void testVacio() {
+		// (4+a!*5
+		Sintactico asd;
+		try {
+			asd = createASint("");
 			asd.S();
 			assertEquals("Error", asd.getTokensCorrectos());
 		} catch (Exception e) {

@@ -3,7 +3,7 @@ package pl4;
 /**
  * 
  * @author Carlos Fernández Valladares / Samuel Lebrero Alonso / Alejandro Moya García
- *
+ * Practica: Practica  Analizador Sintáctico Descendente Recursivo
  */
 public class Yytoken {
 	public int index;

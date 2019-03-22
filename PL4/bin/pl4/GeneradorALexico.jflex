@@ -6,10 +6,12 @@ import java.io.*;
  * 
  * @author Carlos FernÃ¡ndez Valladares / Samuel Lebrero Alonso / Alejandro Moya GarcÃ­a
  *
+ *  Practica: Practica  Analizador SintÃ¡ctico Descendente Recursivo
  */
 %%
 //Area de opciones y declaraciones
 %class Lexico
+%public
 %line
 %column
 
@@ -23,7 +25,7 @@ Id = [:jletter:][:jletterdigit:]*
 
 %%
 //Area de reglas y acciones
-//El símbolo de potenciación se ignora (^) y no se considera la resta unaria (-x)
+//El sï¿½mbolo de potenciaciï¿½n se ignora (^) y no se considera la resta unaria (-x)
 
 ";" {System.out.println("LEX:PTO_COMA"); return new Yytoken(1,yytext(),"PTO_COMA",yyline,yycolumn);}
 "(" {System.out.println("LEX:ABRE_PAR"); return new Yytoken(1,yytext(),"ABRE_PAR",yyline,yycolumn);}
