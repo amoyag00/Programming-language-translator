@@ -1,7 +1,12 @@
 package pl5;
 import java_cup.runtime.*;
 import java.io.*;
-
+/**
+ * 
+ * @author Carlos Fernández Valladares / Samuel Lebrero Alonso / Alejandro Moya García
+ *
+ *  Practica: Practica  Analizador Sintáctico LARL con CUP
+ */
 parser code {:
 public static void main(String[] argv){
 	if (argv.length == 0) {
@@ -30,11 +35,10 @@ public static void main(String[] argv){
 //scan with {: return this.getScanner().next_token(); :};
 
 /*Terminales tokens que puede devolver el lexico*/
-terminal PTOYCOMA,MAS,MENOS,POR,ENTRE,POW,ABREPAR,CIERRAPAR,UMENOS;
+terminal PTOYCOMA,MAS,MENOS,POR,ENTRE,MODULO,POW,ABREPAR,CIERRAPAR,UMENOS;
 
 /*Terminales con atributo*/
 terminal Integer NUM;
-terminal Integer ID;
 /* No terminales sin atributo*/
 non terminal listaexpr;
 
@@ -43,26 +47,11 @@ non terminal Integer expr;
 
 /*Precedencias*/
 precedence left MAS,MENOS;
-precedence left POR,ENTRE;
+precedence left POR,ENTRE,MODULO;
 precedence left UMENOS;
 precedence right POW;
 
 /*Gramatica*/
-
-	/**Producciones
-	*
-	* S-> E;
-	* E-> TE'
-	* E'-> +TE' | -TE' | ε
-	* T-> PT'
-	* T'-> *PT' | /PT' | ε
-	* P-> FP'
-	* P'-> ^FP'| ε
-	* F-> (E) | id | num
-	* 
-	*
-	* E = E+E|E-E|E*E|E/E|E^E|(E)|id|num|-E
-	**/
 	
 listaexpr ::= listaexpr expr:e PTOYCOMA {: System.out.println("= " + e); :}
 |
@@ -79,8 +68,8 @@ expr ::= expr:e1 MAS expr:e2
 {: RESULT= new Integer((int)Math.pow(e1.intValue(),e2.intValue())); :} %prec POW
 | NUM:n
 {: RESULT=n; :}
-| ID:id
-{: RESULT=id.intValue(); :}
+|expr:e1 MODULO expr:e2 
+{: RESULT= new Integer(e1.intValue() % e2.intValue()); :}
 | MENOS expr:e
 {: RESULT= new Integer(0-e.intValue()); :} %prec UMENOS
 | ABREPAR expr:e CIERRAPAR
