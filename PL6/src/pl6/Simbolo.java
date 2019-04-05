@@ -1,5 +1,11 @@
 package pl6;
 import java.util.*;
+/**
+ * 
+ * @author Carlos Fernández Valladares / Samuel Lebrero Alonso / Alejandro Moya García
+ *
+ *  Practica: Practica  Gestion de tipos
+ */
 public class Simbolo {
 	String nombre;
 	Stack tipo;
@@ -18,7 +24,7 @@ public class Simbolo {
 		case('i'): { cadena+="un entero"; break;}
 		case('r'): { cadena+="un real"; break;}
 		case('c'): { cadena+="un caracter"; break;}
-		case('f'): { cadena+="una funci�n que retorna ";break;}
+		case('f'): { cadena+="una funci�n que retorna ";break;}
 		case('b'): { cadena+="un booleano"; break;}
 		case('a'): { cadena+="un array de dimension ";
 			cadena+=s.elementAt(--cont) + " de tipo ";

@@ -2,7 +2,12 @@ package pl6;
 import java_cup.runtime.*;
 import java.io.*;
 import java.util.*;
-
+/**
+ * 
+ * @author Carlos Fernández Valladares / Samuel Lebrero Alonso / Alejandro Moya García
+ *
+ *  Practica: Practica  Gestion de tipos
+ */
 parser code {:
 
 Yylex analizadorLexico;
@@ -45,15 +50,15 @@ terminal Integer NUM;
 terminal Float NUMREAL; 
 
 non terminal Stack tipo, expr, declaracion;
-non terminal Integer dim;
-non terminal String listaargumentos;
+non terminal String listaargumentos, argumentos;
 non terminal programa;
 
 /*Gramatica*/
 
 programa ::= /* Epsilon*/
 			| programa declaracion:d PTOYCOMA
-			{: System.out.println(Simbolo.tipotoString(d)); :}
+			{: System.out.println(Simbolo.tipotoString(d));
+			   System.out.println(); :}
 			| programa error PTOYCOMA
 			{: this.parser.error_sintactico(this.parser.cur_token);:}
 ;
@@ -85,11 +90,13 @@ tipo ::= INTEGER
 		{: RESULT= t; RESULT.push(new Character('p'));:}
 ;
 listaargumentos::= {: RESULT=new String("Sin argumentos"); :}
-					| ID:id DOSPUNTOS tipo COMA listaargumentos
-					{:;:}
-					| ID:id DOSPUNTOS tipo
-					{:;:}
-					
-								
+				   | argumentos 							
 ;
 
+/* Usamos este segundo No-Terminal para evitar listas de argumentos que acaben en coma 
+ya que en listaargumentos al tener una produccion epsilon se permitiría*/
+argumentos::= ID:id DOSPUNTOS tipo COMA argumentos
+			  {:;:}
+			  | ID:id DOSPUNTOS tipo
+			  {:;:}
+;

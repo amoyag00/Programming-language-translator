@@ -1,6 +1,12 @@
 package pl6;
 import java_cup.runtime.*;
 import java.io.*;
+/**
+ * 
+ * @author Carlos Fernández Valladares / Samuel Lebrero Alonso / Alejandro Moya García
+ *
+ *  Practica: Practica  Gestion de tipos
+ */
 %%
 %{
  public int linea(){return yyline+1;}
@@ -33,4 +39,4 @@ import java.io.*;
 [:digit:]+\.[:digit:]+ { return new Symbol(sym.NUMREAL, new Float(yytext())); }
 [:jletter:][:jletterdigit:]* { return new Symbol(sym.ID, yytext()); }
 [ \t\r\n]+ {;}
-. { System.out.println("Error en l�xico."+yytext()+"-"); }
+. { System.out.println("Error en l�xico."+yytext()+"-"); }
