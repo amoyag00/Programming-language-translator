@@ -2,14 +2,29 @@ struct $things{
    real $number;
    real $number2;
    real $number3;
+   string $cadena;
 };
-endStructs
 
-function integer $main(){
+endStructs
+function integer $hola (){
+	integer $i;
+	$i = 0;
+	return 0;
+}
+
+
+
+function real $main(){
+	integer $a, $b, $c;
+	real $d, $e, $f;
+	array(array(integer,5), 5) $numbers;
+	$numbers [3][4] = 5;
    struct $things $thing;
+   struct $things $thing2;
    $thing.$number = 2.0;
    $thing.$number2 = 4.0;
-
+	
+	$d = -$a;
    print("Escribe un número");
 
    read(real, $thing.$number3);
@@ -19,5 +34,8 @@ function integer $main(){
    }else{
       $thing.$number2 = $thing.$number2 + $thing.$number3; 
    };
-	return 0;
+   $hola();
+	return $thing.$number2;
 }
+
+

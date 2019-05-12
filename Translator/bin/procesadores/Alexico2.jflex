@@ -22,13 +22,8 @@ import java.io.*;
 %%
 
 ";" {  System.out.println("END_INSTR");return new Symbol(sym.END_INSTR); }
-\$[:jletter:][:jletterdigit:]* {
- 	System.out.println("ID: "+yytext());
-	Simbolo s;
-	if ((s=tabla.buscar(yytext()))==null)
-		s=tabla.insertar(new Simbolo(yytext(), null));
-		return new Symbol(sym.ID,s);
-	}
+\$[:jletter:][:jletterdigit:]* {System.out.println("ID: "+yytext()); return new Symbol(sym.ID, yytext());}
+		
 "struct" { return new Symbol(sym.STRUCT); }
 "endStructs" { return new Symbol(sym.END_STRUCT); }
 "{" { return new Symbol(sym.INIT_BLOCK); }
@@ -71,8 +66,8 @@ import java.io.*;
 "array" { return new Symbol(sym.ARRAY); }
 "\"" .* "\"" {  System.out.println("string literal");return new Symbol(sym.STRING_LITERAL, new String(yytext())); }
 "\'" . "\'" { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(0))); }
+[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)? {System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Float(yytext())); }
 [:digit:]+ { return new Symbol(sym.NUM_INT, new Integer(yytext())); }
-[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)? {System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Float(yytext())); }
 [ \t\r\n]+ {;}
 . { System.out.println("Error en lexico."+yytext()+"-"); }
 

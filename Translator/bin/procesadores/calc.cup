@@ -1,6 +1,8 @@
 package procesadores;
 import java_cup.runtime.*;
 import java.io.*;
+import java.util.Stack;
+import java.util.List;
 
 parser code {:
 Yylex analizadorLexico;
@@ -49,13 +51,15 @@ terminal Integer NUM_INT;
 terminal Float NUM_REAL;
 terminal Character CHAR_LITERAL;
 terminal String STRING_LITERAL;
-terminal Simbolo ID;
+terminal String ID;
 
 /* No terminales sin atributo*/
-non terminal program, declarations, variables, list, type, returntype, array, structs, struct, functions, function, params, instructions, loop, if, else, conditions, condition, id, validate_operator, logic_operator, expression, assign, numeric_expr, operator, create_struct, print, arg_list, literal;
+non terminal program, declarations , structs, struct, functions, function, instructions, loop, if, else, conditions, condition, validate_operator, logic_operator, expression, assign, operator, create_struct, print, index;
 
 /* No terminales con atributo*/
 /*non terminal  Integer expr, asignacion;*/
+non terminal Stack type, simpletype, list, array, variables, structvars, params,arg_list;
+non terminal String literal, numeric_expr, id, returntype;
 
 /*Precedencias*/
 precedence left PLUS,MINUS;
@@ -68,25 +72,108 @@ program ::= declarations END_STRUCT functions {:  :};
 
 declarations ::= variables structs {:  :};
 
-variables ::= type list END_INSTR variables {:  :} | {: :};
+variables ::= type:t list:l END_INSTR variables {:
+	RESULT = l;
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	for (int i=0 ;i<l.size();i++){
+		String nombre = (String) l.get(i);
+		Simbolo aux= tabla.buscar(nombre);
+		if(aux == null){
+			aux = new Simbolo(nombre, null);
+			tabla.insertar(aux);
+			aux.setTipo((String)t.peek());
+		}else{
+			System.out.println("Error, la variable "+ aux.nombre+" ya se ha declarado ");
+			 //TODO decir linea y columna
+		}
+		
+	}
+	
+	System.out.println("Las variables "+l.toString()+ " son del tipo "+t.toString());  
+:} | {: :};
 
-list ::= ID COMMA list {: :} | ID {:  :};
+list ::= ID:s COMMA list:l {: 
+			 RESULT =l; RESULT.push(s); 
+		:} | ID:s {:
+			 RESULT = new Stack();RESULT.push(s);
+	 	:};
 
-type ::= INT {: :} | REAL {: :} | CHAR {: :} | STRING {: :} | BOOL {: :} | array {: :};
+type ::= INT {: RESULT = new Stack(); RESULT.push("INT"); :} |
+		 REAL {:RESULT = new Stack(); RESULT.push("REAL"); :} | 
+		 CHAR {: RESULT = new Stack(); RESULT.push("CHAR");:} | 
+		 STRING {:RESULT = new Stack(); RESULT.push("STRING"); :} | 
+		 BOOL {: RESULT = new Stack(); RESULT.push("BOOL");:} | 
+		 array:t {: RESULT = t; RESULT.push("ARRAY"); :};
 
-returntype ::= type {: :};
+returntype ::= simpletype:tipo {: RESULT = (String) tipo.peek(); :};
  
-array ::= ARRAY OPEN_PAR type COMMA NUM_INT CLOSE_PAR {: :};
+array ::= ARRAY OPEN_PAR type:t COMMA NUM_INT:d CLOSE_PAR {: RESULT = t; RESULT.push(d); :};
 
 structs ::= struct END_INSTR structs{: :}  | {: :};
 
-struct ::= STRUCT ID INIT_BLOCK variables END_BLOCK {: :};
+struct ::= STRUCT ID:s INIT_BLOCK structvars:t END_BLOCK {: 
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	
+	if(tabla.buscarStructDef(s)==null){
+		
+		StructDefinition def = new StructDefinition(s);
+		def.addAttributes(t);
+		tabla.addStructDef(def);
+	
+	}else{
+		System.out.println("Error, la struct "+ s+" ya se ha definido ");
+	}
+	
+	
+:};
+
+structvars ::= simpletype:t ID:s END_INSTR structvars:stack {:
+	RESULT= stack;
+	RESULT.push(t.peek());
+	RESULT.push(s);
+
+ :} | simpletype:t ID:s END_INSTR {: RESULT = t; RESULT.push(s); :};
+
+simpletype ::= INT {: RESULT = new Stack(); RESULT.push("INT"); :} |
+		 REAL {:RESULT = new Stack(); RESULT.push("REAL"); :} | 
+		 CHAR {: RESULT = new Stack(); RESULT.push("CHAR");:} | 
+		 STRING {:RESULT = new Stack(); RESULT.push("STRING"); :} | 
+		 BOOL {: RESULT = new Stack(); RESULT.push("BOOL");:};
 
 functions ::= function functions {: :} | function {: :};
 
-function ::= FUNCTION returntype ID OPEN_PAR params CLOSE_PAR INIT_BLOCK variables instructions RETURN id END_INSTR END_BLOCK {: :};
+function ::= FUNCTION returntype:tipo1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOCK
+ 			 variables instructions RETURN id:tipo2 END_INSTR END_BLOCK {:
+			  			 
+ 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+ 			if(tabla.buscarGlobal(s)==null){
+ 				if(!tabla.isAssignable(tipo1, tipo2)){
+ 					System.out.println("Error, la función "+s+" debe de retornar un valor "+
+ 					"de tipo "+tipo1+" y está retornando un valor de tipo "+tipo2);
+ 				}else{
+ 					Simbolo function = new Simbolo(s, null);
+	 				function.setTipo("FUNCTION");
+	 				for (int i=l.size()-1 ;i>-1;i--){
+						function.addParamType((String)l.get(i));
+					}
+					tabla.insertar(function);
+					function.setTipo("FUNCTION");
+					function.setTipoRetorno(tipo1);
+ 				}
+ 				
+ 			}else{
+ 				System.out.println("Error, ya se ha declarado la función "+ s);
+ 			}
+			
+:};
 
-params ::= type ID COMMA params {: :} | type ID {: :} | {: :};
+params ::= type:t ID COMMA params:l {:
+				RESULT = l; RESULT.push(t.peek()); 
+		   :} | type:t ID {:
+		   		RESULT = new Stack(); RESULT.push(t.peek());
+		   :} | {: 
+		   		RESULT = new Stack();
+		   :};
 
 instructions ::= expression END_INSTR instructions {: :} | expression END_INSTR {: :};
 
@@ -100,32 +187,250 @@ conditions ::= condition {: :} | condition logic_operator conditions {: :};
 
 condition ::= id validate_operator id {: :};
 
-id ::= ID {: :} | literal {: :} | ID POINT ID {: :} | ID OPEN_PAR arg_list CLOSE_PAR {: :} |
-	   ID OPEN_BRACKETS id CLOSE_BRACKETS {: :};
+id ::= ID:s {: 
+			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+			Simbolo simbolo=tabla.buscarGlobal(s);
+			
+			if(simbolo==null){
+				System.out.println("Error, la variable "+s+" no se ha declarado");
+			}else{
+				RESULT= simbolo.getTipo();
+			}
+			
+		:} | literal:tipo {:
+			
+			RESULT = tipo;
+		
+		:} | ID:s POINT ID:att {:
+		
+			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+			Simbolo simbolo=tabla.buscarGlobal(s);
+			
+			if(simbolo==null){
+				System.out.println("Error, la variable "+s+" no se ha declarado");
+			}else{
+				StructDefinition def =simbolo.getStructInstance().getStructDef();
+				String attType= def.getTipoOf(att);
+				if(attType==null){
+					System.out.println("La variable de tipo struct "+s+
+					" no tiene ningún atributo "+att);
+				}else{
+					RESULT= attType;
+				}
+				
+			}	
+			//TO DO RESULT= tipo de id.id
+			
+		:} | ID:s OPEN_PAR arg_list:tipos CLOSE_PAR {:
+				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+				Simbolo function=tabla.buscarGlobal(s);
+				
+	 			if(function==null){
+					System.out.println("Error, la función "+s+" no existe");	
+				}else if(!function.getTipo().equals("FUNCTION")){
+					System.out.println("Error, "+s+" no es una función");
+				}else{
+					List<String> expectedTipos = function.getParamTypes();
+					if(expectedTipos.size()!=tipos.size()){
+						System.out.println("Error, la función "+s+" espera "+expectedTipos.size()+
+						" parámetros");
+					}
+					for(int i=tipos.size()-1; i>-1;i--){
+						if(!expectedTipos.get(tipos.size()-1-i).equals(tipos.get(i))){
+							System.out.println("Error, el parametro "+(tipos.size()-1-i)+
+							"de la funcion "+ s+" ha de ser de tipo "+
+							expectedTipos.get(tipos.size()-i));
+						}
+					}
+				}
+				
+				RESULT = function.getTipoRetorno();
+				
+	   :} |ID:s index {: 
+	   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+			Simbolo simbolo = tabla.buscarGlobal(s);
+			
+ 			if(simbolo==null){
+				System.out.println("Error, la variable "+s+" no existe");	
+			}else{
+				RESULT= simbolo.getTipo();
+			}
+	   :};
+	   
+index ::= OPEN_BRACKETS id CLOSE_BRACKETS index {: :}| OPEN_BRACKETS id CLOSE_BRACKETS	{: :};   
 
 validate_operator ::= EQUAL {: :} | NOT_EQUAL {: :} | LESS_EQUAL {: :} | GREATER_EQUAL {: :} |
 				 	  LESS {: :} |  GREATER {: :};
 
 logic_operator ::= AND {: :} | OR {: :};
 
-expression ::= assign {: :} | ID OPEN_PAR arg_list CLOSE_PAR  {: :} |
- 			   create_struct  {: :} | 
+expression ::= assign {: :} | 
+				ID:s OPEN_PAR arg_list:tipos CLOSE_PAR  {:
+				
+					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+					Simbolo function=tabla.buscarGlobal(s);
+					
+		 			if(function==null){
+						System.out.println("Error, la función "+s+" no existe");	
+					}else if(!function.getTipo().equals("FUNCTION")){
+						System.out.println("Error, "+s+" no es una función");
+					}else{
+						List<String> expectedTipos = function.getParamTypes();
+						if(expectedTipos.size()!=tipos.size()){
+							System.out.println("Error, la función "+s+" espera "+expectedTipos.size()+
+							" parámetros");
+						}
+						for(int i=tipos.size()-1; i>-1;i--){
+							if(!expectedTipos.get(tipos.size()-1-i).equals(tipos.get(i))){
+								System.out.println("Error, el parametro "+(tipos.size()-i)+
+								" de la funcion "+ s+" ha de ser de tipo "+
+								expectedTipos.get(tipos.size()-1-i));
+							}
+						}
+					}
+				:} | create_struct  {: :} | 
  			   READ OPEN_PAR type COMMA id CLOSE_PAR {: :} |
  			   PRINT OPEN_PAR print CLOSE_PAR {: :} |
  			   loop {: :} | if {: :};
  
-assign ::= ID ASSIGN numeric_expr {: :} | ID OPEN_BRACKETS id CLOSE_BRACKETS ASSIGN numeric_expr {: :} |
-		   ID POINT ID ASSIGN numeric_expr {: :};
+assign ::= ID:s ASSIGN numeric_expr:tipo {: 
+				
+				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+					Simbolo simbolo=tabla.buscarGlobal(s);
+				
+				if(simbolo==null){
+					System.out.println("Error, la variable "+s+" no existe");
+				}else{
+					String expectedTipo = simbolo.getTipo();
+					if(!tabla.isAssignable(expectedTipo,tipo)){
+						System.out.println("Error, no se puede asignar una variable de tipo "+
+						tipo+" a una variable de tipo "+expectedTipo);
+					}
+				}
+				
+		   :} | ID:s index ASSIGN numeric_expr:tipo {: 
+		   		
+		   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+					Simbolo simbolo=tabla.buscarGlobal(s);
+				
+				if(simbolo==null){
+					System.out.println("Error, la variable "+s+" no existe");
+				}else{
+					String expectedTipo = simbolo.getTipo();
+					if(tabla.isAssignable(expectedTipo,tipo)){
+						System.out.println("Error, no se ha puede asignar una variable de tipo "+
+						tipo+" a una variable de tipo "+expectedTipo);
+					}
+				}
+				
+		   :} | ID:sStruct POINT ID:attName ASSIGN numeric_expr:tipo {: 
+		   
+		   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+		   		Simbolo struct = tabla.buscarGlobal(sStruct);
+		   		if(struct==null){
+		   			System.out.println("Error, no ha creado ninguna struct de nombre "+sStruct);
+		   		}else{
+		   			StructDefinition def = struct.getStructInstance().getStructDef();
+		   			String attTipo = def.getTipoOf(attName);
+		   			if(attTipo==null){
+		   				System.out.println("La struct "+sStruct+" no tiene ningún atributo de nombre "+
+		   				attName);
+		   			}else if(tabla.isAssignable(attTipo, tipo)){
+						RESULT = attTipo;
+		   			}else{
+		   				System.out.println("Error, no se puede asignar una variable de tipo "+
+		   				tipo+" a un atributo de una struct de tipo "+attTipo);
+		   			}
+		   			
+		   		}
+		   		
+		   :};
 
-numeric_expr ::= numeric_expr operator id {: :} | id {: :} |
-				 OPEN_PAR numeric_expr CLOSE_PAR  {: :};
+numeric_expr ::= numeric_expr:tipo1 operator id:tipo2 {:
+					
+					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+					
+					if( !tabla.isNumeric(tipo1) && !tabla.isNumeric(tipo2) ){
+						System.out.println("Error, las operaciones matemáticas han de ser"+
+						" entre tipos REAL o INT. No se puede operar el tipo "+tipo1+
+						" con el tipo "+tipo2);	
+					}else{
+					
+						if(tipo1.equals("REAL") || tipo2.equals("REAL") ){
+							RESULT= "REAL";
+						}else{
+							RESULT = "INT";
+						}
+					}
+				 :} | id:tipo {: 
+				 	RESULT=tipo;
+				 	
+				 :} | MINUS id:tipo {:
+				 	RESULT= tipo;
+				 :} | OPEN_PAR numeric_expr:tipo CLOSE_PAR  {: 
+				 	RESULT= tipo;
+				 :};
 
 operator ::=  PLUS  {: :} | MINUS{: :}| POW{: :}| MOD{: :}| DIV {: :}| MULT {: :};
 
-create_struct ::=  STRUCT ID ID {: :};
+create_struct ::=  STRUCT ID:structDef ID:s {: 
+				
+					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+					StructDefinition def = tabla.buscarStructDef(structDef);
+					
+					if(def==null){
+						System.out.println("Error, no se ha definido un struct de nombre "+structDef);
+					}else{
+						Simbolo simbolo = new Simbolo(s, null);
+						simbolo.createStructInstance(def);
+						simbolo.setTipo("STRUCT");
+						tabla.insertar(simbolo);
+					}
+				:};
 
 print ::=  id COMMA print  {: :} | id {: :};
 
-arg_list ::= ID COMMA arg_list  {: :} | literal COMMA arg_list {: :} | ID {: :} | literal {: :};
+arg_list ::= ID:s COMMA arg_list:stack  {:
+	
+		RESULT= stack; 
+		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+		Simbolo simbolo=tabla.buscarGlobal(s);
+				
+	 	if(simbolo==null){
+			System.out.println("Error, la variable "+s+" no se ha declarado");	
+		}else{
+			RESULT.push(simbolo.getTipo());		
+		}
+	
+	:} | literal:l COMMA arg_list:stack {:
 
-literal ::= NUM_INT {: :} | NUM_REAL {: :} | CHAR_LITERAL {: :} | STRING_LITERAL {: :} | TRUE{: :} | FALSE{: :};
+		RESULT= stack; 
+		RESULT.push(l);		
+		
+		
+	:} | ID:s {: 
+	
+		RESULT = new Stack();
+		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+		Simbolo simbolo=tabla.buscarGlobal(s);
+				
+	 	if(simbolo==null){
+			System.out.println("Error, la variable "+s+" no se ha declarado");	
+		}else{
+			RESULT.push(simbolo.getTipo());		
+		}
+	 
+	:} | literal:l {:
+	 
+		RESULT = new Stack();
+		RESULT.push(l);
+	:}| {: 
+		RESULT = new Stack();
+	:};
+
+literal ::= NUM_INT {: RESULT="INT"; :} |
+			NUM_REAL {: RESULT= "REAL"; :} |
+			CHAR_LITERAL {: RESULT= "CHAR"; :} | 
+			STRING_LITERAL {: RESULT= "STRING"; :} | 
+			TRUE{: RESULT="BOOL"; :} | 
+			FALSE{: RESULT= "BOOL"; :};
