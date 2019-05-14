@@ -13,8 +13,9 @@ endStructs
 function integer $hola (real $param1, real $param2){
 	real $a;
 	integer $i;
-	$i = 0;
-	integer $nombre [4][5];
+	integer $nombre [5][3];
+	$i = $nombre[0];
+	
 	return 0;
 	
 }
@@ -24,14 +25,13 @@ function real $main(){
 	string $cadena;
 	real $d, $e, $f;
 	
-	array(array(integer,5), 5) $numbers;
 	
-	$numbers [3][4] = 5;
+	
    struct $things $thing;
    struct $things $thing2;
    $thing.$number = 2.0;
    $thing.$number2 = 4.0;
-	$a = $a+$d+$a;
+	$a = $a+$a;
 	$d = -$a;
    print("Escribe un número");
 

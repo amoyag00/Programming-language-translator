@@ -63,7 +63,6 @@ import java.io.*;
 "return" { return new Symbol(sym.RETURN); }
 "read" { return new Symbol(sym.READ); }
 "print" { return new Symbol(sym.PRINT); }
-"array" { return new Symbol(sym.ARRAY); }
 "\"" .* "\"" {  System.out.println("string literal");return new Symbol(sym.STRING_LITERAL, new String(yytext())); }
 "\'" . "\'" { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(0))); }
 [-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)? {System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Float(yytext())); }

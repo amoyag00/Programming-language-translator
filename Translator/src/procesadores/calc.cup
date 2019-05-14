@@ -23,6 +23,7 @@ public static void main(String[] argv){
 		parserObj.parse();
 		}
 		catch(Exception x) {
+		x.printStackTrace();
 		System.out.println("Error fatal.");
 		}
 	}
@@ -42,7 +43,7 @@ public void error_sintactico(Symbol current_token){
 //scan with {: return this.getScanner().next_token(); :};
 
 /*Terminales tokens que puede devolver el lexico*/
-terminal END_INSTR, STRUCT, END_STRUCT, INIT_BLOCK, END_BLOCK, OPEN_PAR, CLOSE_PAR, OPEN_BRACKETS, CLOSE_BRACKETS, FUNCTION, INT, REAL, CHAR, STRING, BOOL, ASSIGN, LESS, GREATER, EQUAL, NOT_EQUAL, LESS_EQUAL, GREATER_EQUAL, AND, OR, PLUS, MINUS, DIV, MOD, MULT, POW, WHILE, IF, ELSE, COMMA, POINT, TRUE, FALSE, RETURN, READ, PRINT, ARRAY; 
+terminal END_INSTR, STRUCT, END_STRUCT, INIT_BLOCK, END_BLOCK, OPEN_PAR, CLOSE_PAR, OPEN_BRACKETS, CLOSE_BRACKETS, FUNCTION, INT, REAL, CHAR, STRING, BOOL, ASSIGN, LESS, GREATER, EQUAL, NOT_EQUAL, LESS_EQUAL, GREATER_EQUAL, AND, OR, PLUS, MINUS, DIV, MOD, MULT, POW, WHILE, IF, ELSE, COMMA, POINT, TRUE, FALSE, RETURN, READ, PRINT/*, ARRAY*/; 
 
 
 
@@ -96,18 +97,21 @@ list ::= ID:s COMMA list:l {:
 			 RESULT =l; RESULT.push(s); 
 		:} | ID:s {:
 			 RESULT = new Stack();RESULT.push(s);
+	 	:} | array:stack COMMA list:l{:
+	 		RESULT = stack;
+	 	:} | array:stack {: 
+	 		RESULT = stack;
 	 	:};
 
 type ::= INT {: RESULT = new Stack(); RESULT.push("INT"); :} |
 		 REAL {:RESULT = new Stack(); RESULT.push("REAL"); :} | 
 		 CHAR {: RESULT = new Stack(); RESULT.push("CHAR");:} | 
 		 STRING {:RESULT = new Stack(); RESULT.push("STRING"); :} | 
-		 BOOL {: RESULT = new Stack(); RESULT.push("BOOL");:} | 
-		 array:t {: RESULT = t; RESULT.push("ARRAY"); :};
+		 BOOL {: RESULT = new Stack(); RESULT.push("BOOL");:};
 
 returntype ::= simpletype:tipo {: RESULT = (String) tipo.peek(); :};
  
-array ::= ARRAY OPEN_PAR type:t COMMA NUM_INT:d CLOSE_PAR {: RESULT = t; RESULT.push(d); :};
+array ::= ID:s index{: RESULT = new Stack(); RESULT.push(s); :};
 
 
 structs ::= struct END_INSTR structs{: :}  | {: :};
@@ -257,7 +261,7 @@ id ::= ID:s {:
 			}
 	   :};
 	   
-index ::= OPEN_BRACKETS id CLOSE_BRACKETS index {: :}| OPEN_BRACKETS id CLOSE_BRACKETS	{: :};   
+index ::= OPEN_BRACKETS NUM_INT CLOSE_BRACKETS index {: :}| OPEN_BRACKETS NUM_INT CLOSE_BRACKETS	{: :};   
 
 validate_operator ::= EQUAL {: :} | NOT_EQUAL {: :} | LESS_EQUAL {: :} | GREATER_EQUAL {: :} |
 				 	  LESS {: :} |  GREATER {: :};
