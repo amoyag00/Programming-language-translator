@@ -109,6 +109,7 @@ returntype ::= simpletype:tipo {: RESULT = (String) tipo.peek(); :};
  
 array ::= ARRAY OPEN_PAR type:t COMMA NUM_INT:d CLOSE_PAR {: RESULT = t; RESULT.push(d); :};
 
+
 structs ::= struct END_INSTR structs{: :}  | {: :};
 
 struct ::= STRUCT ID:s INIT_BLOCK structvars:t END_BLOCK {: 
@@ -142,29 +143,28 @@ simpletype ::= INT {: RESULT = new Stack(); RESULT.push("INT"); :} |
 
 functions ::= function functions {: :} | function {: :};
 
-function ::= FUNCTION returntype:tipo1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOCK
- 			 variables instructions RETURN id:tipo2 END_INSTR END_BLOCK {:
-			  			 
- 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
- 			if(tabla.buscarGlobal(s)==null){
- 				if(!tabla.isAssignable(tipo1, tipo2)){
- 					System.out.println("Error, la función "+s+" debe de retornar un valor "+
- 					"de tipo "+tipo1+" y está retornando un valor de tipo "+tipo2);
- 				}else{
- 					Simbolo function = new Simbolo(s, null);
-	 				function.setTipo("FUNCTION");
-	 				for (int i=l.size()-1 ;i>-1;i--){
-						function.addParamType((String)l.get(i));
-					}
-					tabla.insertar(function);
-					function.setTipo("FUNCTION");
-					function.setTipoRetorno(tipo1);
- 				}
- 				
- 			}else{
- 				System.out.println("Error, ya se ha declarado la función "+ s);
- 			}
-			
+function ::= FUNCTION returntype:tipo1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOCK {:
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+ 	if(tabla.buscarGlobal(s)==null){
+ 		Simbolo function = new Simbolo(s, null);
+		function.setTipo("FUNCTION");
+		for (int i=l.size()-1 ;i>-1;i--){
+			function.addParamType((String)l.get(i));
+		}
+		tabla.insertar(function);
+		function.setTipo("FUNCTION");
+		function.setTipoRetorno(tipo1);
+ 		tabla.set();
+ 	}else{
+ 		System.out.println("Error, ya se ha declarado la función "+ s);
+ 	}
+:}variables instructions RETURN id:tipo2 END_INSTR END_BLOCK {:
+			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+			if(!tabla.isAssignable(tipo1, tipo2)){
+				System.out.println("Error, la función "+s+" debe de retornar un valor "+
+				"de tipo "+tipo1+" y está retornando un valor de tipo "+tipo2);
+			}
+		
 :};
 
 params ::= type:t ID COMMA params:l {:
@@ -219,7 +219,7 @@ id ::= ID:s {:
 				}
 				
 			}	
-			//TO DO RESULT= tipo de id.id
+			
 			
 		:} | ID:s OPEN_PAR arg_list:tipos CLOSE_PAR {:
 				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
@@ -350,7 +350,7 @@ numeric_expr ::= numeric_expr:tipo1 operator id:tipo2 {:
 					
 					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					
-					if( !tabla.isNumeric(tipo1) && !tabla.isNumeric(tipo2) ){
+					if( !tabla.isNumeric(tipo1) || !tabla.isNumeric(tipo2) ){
 						System.out.println("Error, las operaciones matemáticas han de ser"+
 						" entre tipos REAL o INT. No se puede operar el tipo "+tipo1+
 						" con el tipo "+tipo2);	
