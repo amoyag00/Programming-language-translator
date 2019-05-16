@@ -92,69 +92,79 @@ public class TablaSimbolos {
 
 		switch (expectedTipo) {
 
-		case "INT":
-			switch (tipo) {
 			case "INT":
-				assignable = true;
+				switch (tipo) {
+					case "INT":
+						assignable = true;
+						break;
+					default:
+						assignable = false;
+				}
 				break;
-			default:
-				assignable = false;
-			}
-			break;
-
-		case "REAL":
-			switch (tipo) {
-			case "INT":
+	
 			case "REAL":
-
-				assignable = true;
+				switch (tipo) {
+					case "INT":
+					case "REAL":
+		
+						assignable = true;
+						break;
+					default:
+						assignable = false;
+				}
 				break;
-			default:
-				assignable = false;
-			}
-			break;
-
-		case "STRING":
-			switch (tipo) {
+	
 			case "STRING":
-				assignable = true;
+				switch (tipo) {
+					case "STRING":
+						assignable = true;
+						break;
+					default:
+						assignable = false;
+				}
 				break;
-			default:
-				assignable = false;
-			}
-			break;
-
-		case "CHAR":
-			switch (tipo) {
+	
 			case "CHAR":
-				assignable = true;
+				switch (tipo) {
+					case "CHAR":
+						assignable = true;
+						break;
+					default:
+						assignable = false;
+				}
 				break;
-			default:
-				assignable = false;
-			}
-			break;
-
-		case "BOOL":
-			switch (tipo) {
+	
 			case "BOOL":
-				assignable = true;
-			default:
-				assignable = false;
-			}
-			break;
+				switch (tipo) {
+					case "BOOL":
+						assignable = true;
+					default:
+						assignable = false;
+				}
+				break;
+				
+			case "STRUCT":
+				switch (tipo) {
+					case "STRUCT":
+						assignable = true;
+						break;
+					default:
+						assignable = false;
+				}
+				break;
 			
-		case "STRUCT":
-			switch (tipo) {
-				case "STRUCT":
-					assignable = true;
-					break;
-				default:
-					assignable = false;
+			case "ARRAY":
+				switch (tipo) {
+					case "ARRAY":
+						assignable = true;
+						break;
+					default:
+						assignable = false;
+				}
+				break;
 			}
-		}
-
-		return assignable;
-
+		
+			return assignable;
 	}
 
 	public boolean isNumeric(String tipo) {

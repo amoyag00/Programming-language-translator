@@ -55,12 +55,12 @@ terminal String STRING_LITERAL;
 terminal String ID;
 
 /* No terminales sin atributo*/
-non terminal program, declarations , structs, struct, functions, function, instructions, loop, if, else, conditions, condition, validate_operator, logic_operator, expression, assign, operator, create_struct, print, index;
+non terminal program, declarations , structs, struct, functions, function, instructions, loop, if, else, conditions, condition, validate_operator, logic_operator, expression, assign, operator, create_struct, print;
 
 /* No terminales con atributo*/
 /*non terminal  Integer expr, asignacion;*/
-non terminal Stack type, simpletype, list, array, variables, structvars, params,arg_list;
-non terminal String literal, numeric_expr, id, returntype;
+non terminal Stack   list, variables, structvars, params,arg_list;
+non terminal Simbolo literal, numeric_expr, id, returntype, index, type, array;
 
 /*Precedencias*/
 precedence left PLUS,MINUS;
@@ -73,16 +73,18 @@ program ::= declarations END_STRUCT functions {:  :};
 
 declarations ::= variables structs {:  :};
 
-variables ::= type:t list:l END_INSTR variables {:
+variables ::= type:sim list:l END_INSTR variables {:
 	RESULT = l;
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	for (int i=0 ;i<l.size();i++){
-		String nombre = (String) l.get(i);
+		Simbolo simbolo = (Simbolo) l.get(i);
+		
+		String nombre =simbolo.getNombre();
 		Simbolo aux= tabla.buscar(nombre);
 		if(aux == null){
-			aux = new Simbolo(nombre, null);
-			tabla.insertar(aux);
-			aux.setTipo((String)t.peek());
+			//aux = new Simbolo(nombre, null);
+			tabla.insertar(simbolo);
+			simbolo.setTipo(sim.getTipo());
 		}else{
 			System.out.println("Error, la variable "+ aux.nombre+" ya se ha declarado ");
 			 //TODO decir linea y columna
@@ -90,28 +92,77 @@ variables ::= type:t list:l END_INSTR variables {:
 		
 	}
 	
-	System.out.println("Las variables "+l.toString()+ " son del tipo "+t.toString());  
+	System.out.println("Las variables "+l.toString()+ " son del tipo "+sim.getTipo());  
 :} | {: :};
 
 list ::= ID:s COMMA list:l {: 
-			 RESULT =l; RESULT.push(s); 
+
+			 RESULT =l;
+			 Simbolo sim = new Simbolo();
+			 sim.setNombre(s);
+			 RESULT.push(sim); 
+			 
 		:} | ID:s {:
-			 RESULT = new Stack();RESULT.push(s);
-	 	:} | array:stack COMMA list:l{:
-	 		RESULT = stack;
-	 	:} | array:stack {: 
-	 		RESULT = stack;
+		
+			 RESULT = new Stack();
+			 Simbolo sim = new Simbolo();
+			 sim.setNombre(s);
+			 RESULT.push(sim);
+			 
+	 	:} | array:sim COMMA list:l{:
+	 	
+	 		RESULT = l;
+			RESULT.push(sim);
+			
+	 	:} | array:sim {: 
+	 	
+	 		RESULT = new Stack();
+	 		RESULT.push(sim);
+	 		
 	 	:};
 
-type ::= INT {: RESULT = new Stack(); RESULT.push("INT"); :} |
-		 REAL {:RESULT = new Stack(); RESULT.push("REAL"); :} | 
-		 CHAR {: RESULT = new Stack(); RESULT.push("CHAR");:} | 
-		 STRING {:RESULT = new Stack(); RESULT.push("STRING"); :} | 
-		 BOOL {: RESULT = new Stack(); RESULT.push("BOOL");:};
+type ::= INT {:
 
-returntype ::= simpletype:tipo {: RESULT = (String) tipo.peek(); :};
+		Simbolo sim = new Simbolo();
+		sim.setTipo("INT");
+		RESULT = sim; 
+		
+	:} | REAL {:
+	
+		Simbolo sim = new Simbolo();
+		sim.setTipo("REAL");
+		RESULT = sim; 
+		
+	:} | CHAR {: 
+	
+		Simbolo sim = new Simbolo();
+		sim.setTipo("CHAR");
+		RESULT = sim;
+		
+	:} | STRING {:
+	
+		Simbolo sim = new Simbolo();
+		sim.setTipo("STRING");
+		RESULT = sim; 
+		 
+	:} | BOOL {:
+	
+		Simbolo sim = new Simbolo();
+		sim.setTipo("BOOL");
+		RESULT = sim;
+		
+	:};
+
+returntype ::= type:sim {: 
+
+	RESULT = sim; 
+	
+:};
  
-array ::= ID:s index{: RESULT = new Stack(); RESULT.push(s); :};
+array ::= ID:s index:sim{: 
+	sim.setNombre(s);
+	RESULT=sim;
+:};
 
 
 structs ::= struct END_INSTR structs{: :}  | {: :};
@@ -132,49 +183,69 @@ struct ::= STRUCT ID:s INIT_BLOCK structvars:t END_BLOCK {:
 	
 :};
 
-structvars ::= simpletype:t ID:s END_INSTR structvars:stack {:
+structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 	RESULT= stack;
-	RESULT.push(t.peek());
-	RESULT.push(s);
+	//TODO cuidado aqui
+	sim.setNombre(nombre);
+	RESULT.push(sim);
 
- :} | simpletype:t ID:s END_INSTR {: RESULT = t; RESULT.push(s); :};
+:} | type:sim ID:nombre END_INSTR {:
 
-simpletype ::= INT {: RESULT = new Stack(); RESULT.push("INT"); :} |
-		 REAL {:RESULT = new Stack(); RESULT.push("REAL"); :} | 
-		 CHAR {: RESULT = new Stack(); RESULT.push("CHAR");:} | 
-		 STRING {:RESULT = new Stack(); RESULT.push("STRING"); :} | 
-		 BOOL {: RESULT = new Stack(); RESULT.push("BOOL");:};
+	RESULT=new Stack();
+	//TODO cuidado aqui
+	sim.setNombre(nombre);
+	RESULT.push(sim);
+	
+:} | type:sim array:simbolo END_INSTR structvars:stack {:
+
+	RESULT=stack;
+	//TODO cuidado aqui
+	simbolo.setTipo(sim.getTipo());
+	RESULT.push(simbolo);
+
+:} | type:sim array:simbolo END_INSTR{:
+
+	RESULT=new Stack();
+	//TODO cuidado aqui
+	simbolo.setTipo(sim.getTipo());
+	RESULT.push(simbolo);
+
+:};
+
 
 functions ::= function functions {: :} | function {: :};
 
-function ::= FUNCTION returntype:tipo1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOCK {:
+function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOCK {:
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
  	if(tabla.buscarGlobal(s)==null){
  		Simbolo function = new Simbolo(s, null);
 		function.setTipo("FUNCTION");
 		for (int i=l.size()-1 ;i>-1;i--){
-			function.addParamType((String)l.get(i));
+		Simbolo sim = (Simbolo) l.get(i);
+			function.addParamType( sim.getTipo());
 		}
 		tabla.insertar(function);
 		function.setTipo("FUNCTION");
-		function.setTipoRetorno(tipo1);
+		function.setTipoRetorno(sim1.getTipo());
  		tabla.set();
  	}else{
  		System.out.println("Error, ya se ha declarado la función "+ s);
  	}
-:}variables instructions RETURN id:tipo2 END_INSTR END_BLOCK {:
+:}variables instructions RETURN id:sim2 END_INSTR END_BLOCK {:
 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
-			if(!tabla.isAssignable(tipo1, tipo2)){
+			if(!tabla.isAssignable(sim1.getTipo(), sim2.getTipo())){
 				System.out.println("Error, la función "+s+" debe de retornar un valor "+
-				"de tipo "+tipo1+" y está retornando un valor de tipo "+tipo2);
+				"de tipo "+sim1.getTipo()+" y está retornando un valor de tipo "+sim2.getTipo());
 			}
 		
 :};
 
-params ::= type:t ID COMMA params:l {:
-				RESULT = l; RESULT.push(t.peek()); 
-		   :} | type:t ID {:
-		   		RESULT = new Stack(); RESULT.push(t.peek());
+params ::= type:sim ID COMMA params:l {:
+				RESULT = l;
+				RESULT.push(sim); 
+		   :} | type:sim ID {:
+		   		RESULT = new Stack();
+		   		RESULT.push(sim);
 		   :} | {: 
 		   		RESULT = new Stack();
 		   :};
@@ -198,12 +269,12 @@ id ::= ID:s {:
 			if(simbolo==null){
 				System.out.println("Error, la variable "+s+" no se ha declarado");
 			}else{
-				RESULT= simbolo.getTipo();
+				RESULT= simbolo;
 			}
 			
-		:} | literal:tipo {:
+		:} | literal:sim {:
 			
-			RESULT = tipo;
+			RESULT = sim;
 		
 		:} | ID:s POINT ID:att {:
 		
@@ -219,7 +290,9 @@ id ::= ID:s {:
 					System.out.println("La variable de tipo struct "+s+
 					" no tiene ningún atributo "+att);
 				}else{
-					RESULT= attType;
+					Simbolo sim = new Simbolo();
+					sim.setTipo(attType);
+					RESULT= sim;
 				}
 				
 			}	
@@ -247,21 +320,37 @@ id ::= ID:s {:
 						}
 					}
 				}
+				Simbolo sim = new Simbolo();
+				sim.setTipo(function.getTipoRetorno());
+				RESULT = sim;
 				
-				RESULT = function.getTipoRetorno();
-				
-	   :} |ID:s index {: 
+	   :} |ID:s index:sim {: 
 	   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 			Simbolo simbolo = tabla.buscarGlobal(s);
 			
  			if(simbolo==null){
-				System.out.println("Error, la variable "+s+" no existe");	
+				System.out.println("Error, el array "+s+" no existe");	
 			}else{
-				RESULT= simbolo.getTipo();
+				sim.setTipo(simbolo.getTipo());
+				sim.setDimension(simbolo.getDimension() - sim.getDimension());
+				RESULT = sim;
+				
+			
 			}
 	   :};
 	   
-index ::= OPEN_BRACKETS NUM_INT CLOSE_BRACKETS index {: :}| OPEN_BRACKETS NUM_INT CLOSE_BRACKETS	{: :};   
+index ::= OPEN_BRACKETS NUM_INT CLOSE_BRACKETS index:sim {: 
+
+	sim.increaseDim();
+	RESULT = sim;
+
+:}| OPEN_BRACKETS NUM_INT CLOSE_BRACKETS	{: 
+	
+	Simbolo simbolo = new Simbolo();
+	simbolo.setDimension(1);
+	RESULT = simbolo;
+	
+:};   
 
 validate_operator ::= EQUAL {: :} | NOT_EQUAL {: :} | LESS_EQUAL {: :} | GREATER_EQUAL {: :} |
 				 	  LESS {: :} |  GREATER {: :};
@@ -297,7 +386,7 @@ expression ::= assign {: :} |
  			   PRINT OPEN_PAR print CLOSE_PAR {: :} |
  			   loop {: :} | if {: :};
  
-assign ::= ID:s ASSIGN numeric_expr:tipo {: 
+assign ::= ID:s ASSIGN numeric_expr:sim {: 
 				
 				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					Simbolo simbolo=tabla.buscarGlobal(s);
@@ -306,13 +395,16 @@ assign ::= ID:s ASSIGN numeric_expr:tipo {:
 					System.out.println("Error, la variable "+s+" no existe");
 				}else{
 					String expectedTipo = simbolo.getTipo();
-					if(!tabla.isAssignable(expectedTipo,tipo)){
+					if(!tabla.isAssignable(expectedTipo,sim.getTipo())){
 						System.out.println("Error, no se puede asignar una variable de tipo "+
-						tipo+" a una variable de tipo "+expectedTipo);
+						sim.getTipo()+" a una variable de tipo "+expectedTipo);
+					}else if(simbolo.getDimension()!=sim.getDimension()){
+						System.out.println("Error, no se puede asignar una variable de dimensión "+
+						sim.getDimension()+" a una variable de dimensión "+simbolo.getDimension());
 					}
 				}
 				
-		   :} | ID:s index ASSIGN numeric_expr:tipo {: 
+		   :} | ID:s index ASSIGN numeric_expr:sim {: 
 		   		
 		   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					Simbolo simbolo=tabla.buscarGlobal(s);
@@ -321,13 +413,13 @@ assign ::= ID:s ASSIGN numeric_expr:tipo {:
 					System.out.println("Error, la variable "+s+" no existe");
 				}else{
 					String expectedTipo = simbolo.getTipo();
-					if(tabla.isAssignable(expectedTipo,tipo)){
+					if(!tabla.isAssignable(expectedTipo,sim.getTipo())){
 						System.out.println("Error, no se ha puede asignar una variable de tipo "+
-						tipo+" a una variable de tipo "+expectedTipo);
+						sim.getTipo()+" a una variable de tipo "+expectedTipo);
 					}
 				}
 				
-		   :} | ID:sStruct POINT ID:attName ASSIGN numeric_expr:tipo {: 
+		   :} | ID:sStruct POINT ID:attName ASSIGN numeric_expr:sim {: 
 		   
 		   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 		   		Simbolo struct = tabla.buscarGlobal(sStruct);
@@ -339,40 +431,52 @@ assign ::= ID:s ASSIGN numeric_expr:tipo {:
 		   			if(attTipo==null){
 		   				System.out.println("La struct "+sStruct+" no tiene ningún atributo de nombre "+
 		   				attName);
-		   			}else if(tabla.isAssignable(attTipo, tipo)){
+		   			}else if(struct.getDimension()!=sim.getDimension()){
+						System.out.println("Error, no se puede asignar una variable de dimensión "+
+						sim.getDimension()+" a un atributo de una struct de dimensión "+struct.getDimension());
+					}else if(tabla.isAssignable(attTipo, sim.getTipo())){
 						RESULT = attTipo;
 		   			}else{
 		   				System.out.println("Error, no se puede asignar una variable de tipo "+
-		   				tipo+" a un atributo de una struct de tipo "+attTipo);
+		   				sim.getTipo()+" a un atributo de una struct de tipo "+attTipo);
 		   			}
 		   			
 		   		}
 		   		
 		   :};
 
-numeric_expr ::= numeric_expr:tipo1 operator id:tipo2 {:
+numeric_expr ::= numeric_expr:sim1 operator id:sim2 {:
 					
 					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					
-					if( !tabla.isNumeric(tipo1) || !tabla.isNumeric(tipo2) ){
+					if( !tabla.isNumeric(sim1.getTipo()) || !tabla.isNumeric(sim2.getTipo()) ){
 						System.out.println("Error, las operaciones matemáticas han de ser"+
-						" entre tipos REAL o INT. No se puede operar el tipo "+tipo1+
-						" con el tipo "+tipo2);	
+						" entre tipos REAL o INT. No se puede operar el tipo "+sim1.getTipo()+
+						" con el tipo "+sim2.getTipo());	
 					}else{
 					
-						if(tipo1.equals("REAL") || tipo2.equals("REAL") ){
-							RESULT= "REAL";
+						if(sim1.getTipo().equals("REAL") || sim2.getTipo().equals("REAL") ){
+							Simbolo sim = new Simbolo();
+							sim.setTipo("REAL");
+							RESULT= sim;
 						}else{
-							RESULT = "INT";
+							Simbolo sim = new Simbolo();
+							sim.setTipo("INT");
+							RESULT= sim;
 						}
 					}
-				 :} | id:tipo {: 
-				 	RESULT=tipo;
+				 :} | id:sim {: 
+				 
+				 	RESULT=sim;
 				 	
-				 :} | MINUS id:tipo {:
-				 	RESULT= tipo;
-				 :} | OPEN_PAR numeric_expr:tipo CLOSE_PAR  {: 
-				 	RESULT= tipo;
+				 :} | MINUS id:sim {:
+				 
+				 	RESULT= sim;
+				 	
+				 :} | OPEN_PAR numeric_expr:sim CLOSE_PAR  {: 
+				 
+				 	RESULT= sim;
+				 	
 				 :};
 
 operator ::=  PLUS  {: :} | MINUS{: :}| POW{: :}| MOD{: :}| DIV {: :}| MULT {: :};
@@ -432,9 +536,40 @@ arg_list ::= ID:s COMMA arg_list:stack  {:
 		RESULT = new Stack();
 	:};
 
-literal ::= NUM_INT {: RESULT="INT"; :} |
-			NUM_REAL {: RESULT= "REAL"; :} |
-			CHAR_LITERAL {: RESULT= "CHAR"; :} | 
-			STRING_LITERAL {: RESULT= "STRING"; :} | 
-			TRUE{: RESULT="BOOL"; :} | 
-			FALSE{: RESULT= "BOOL"; :};
+literal ::= NUM_INT {: 
+
+	Simbolo sim = new Simbolo();
+	sim.setTipo("INT");
+	RESULT=sim; 
+	
+:} | NUM_REAL {: 
+
+	Simbolo sim = new Simbolo();
+	sim.setTipo("REAL");
+	RESULT=sim; 
+	
+:} | CHAR_LITERAL {: 
+
+	Simbolo sim = new Simbolo();
+	sim.setTipo("CHAR");
+	RESULT=sim; 
+	
+:} | STRING_LITERAL {:
+ 
+	Simbolo sim = new Simbolo();
+	sim.setTipo("STRING");
+	RESULT=sim;
+	
+:} | TRUE{: 
+
+	Simbolo sim = new Simbolo();
+	sim.setTipo("BOOL");
+	RESULT=sim;
+	 
+:} | FALSE{: 
+
+	Simbolo sim = new Simbolo();
+	sim.setTipo("BOOL");
+	RESULT=sim; 
+	
+:};
