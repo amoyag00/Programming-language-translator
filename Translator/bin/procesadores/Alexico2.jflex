@@ -19,8 +19,25 @@ import java.io.*;
 %cup
 %line
 %column
+
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]
+WhiteSpace     = {LineTerminator} | [ \t\f]
+
+/* comments */
+Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
+
+TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+// Comment can be the last line of the file, without line terminator.
+EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
+DocumentationComment = "/**" {CommentContent} "*"+ "/"
+CommentContent       = ( [^*] | \*+ [^/*] )*
+
+    
 %%
 
+
+{Comment} { ;}
 ";" {  System.out.println("END_INSTR");return new Symbol(sym.END_INSTR); }
 \$[:jletter:][:jletterdigit:]* {System.out.println("ID: "+yytext()); return new Symbol(sym.ID, yytext());}
 		
@@ -69,4 +86,3 @@ import java.io.*;
 [:digit:]+ { return new Symbol(sym.NUM_INT, new Integer(yytext())); }
 [ \t\r\n]+ {;}
 . { System.out.println("Error en lexico."+yytext()+"-"); }
-

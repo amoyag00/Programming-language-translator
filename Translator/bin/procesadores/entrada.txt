@@ -1,5 +1,7 @@
 real $a;
-
+//Jaja si
+/* soi llo
+  el cucho */
 struct $things{
    real $number;
    real $number2;
@@ -11,16 +13,15 @@ struct $things{
 
 endStructs
 function integer $hola (real $param1, real $param2){
-	real $a;
-	integer $i;
-	integer $nombre [5][3];
-	$i=0;
+	$param1 = $param1 + $param2;
+	
 	return 0;
 	
 }
 
 function real $main(){
 	integer $a, $b, $c;
+	real $param1;
 	string $cadena;
 	real $d, $e, $f;
 	integer $nombre2 [2][5][4];
@@ -29,7 +30,7 @@ function real $main(){
    
    $thing.$number = 2.0;
    $thing.$number2 = 4.0;
-   $thing.$number3 = "hola";
+   $thing.$number3 = 5;
 	$a = $a+$a;
 	$d = -$a;
    print("Escribe un número");
