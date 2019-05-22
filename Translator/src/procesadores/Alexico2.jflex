@@ -19,8 +19,25 @@ import java.io.*;
 %cup
 %line
 %column
+
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]
+WhiteSpace     = {LineTerminator} | [ \t\f]
+
+/* comments */
+Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
+
+TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+// Comment can be the last line of the file, without line terminator.
+EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
+DocumentationComment = "/**" {CommentContent} "*"+ "/"
+CommentContent       = ( [^*] | \*+ [^/*] )*
+
+    
 %%
 
+
+{Comment} { ;}
 ";" {  System.out.println("END_INSTR");return new Symbol(sym.END_INSTR); }
 \$[:jletter:][:jletterdigit:]* {System.out.println("ID: "+yytext()); return new Symbol(sym.ID, yytext());}
 		
@@ -63,11 +80,9 @@ import java.io.*;
 "return" { return new Symbol(sym.RETURN); }
 "read" { return new Symbol(sym.READ); }
 "print" { return new Symbol(sym.PRINT); }
-"array" { return new Symbol(sym.ARRAY); }
 "\"" .* "\"" {  System.out.println("string literal");return new Symbol(sym.STRING_LITERAL, new String(yytext())); }
 "\'" . "\'" { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(0))); }
 [-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)? {System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Float(yytext())); }
 [:digit:]+ { return new Symbol(sym.NUM_INT, new Integer(yytext())); }
 [ \t\r\n]+ {;}
 . { System.out.println("Error en lexico."+yytext()+"-"); }
-

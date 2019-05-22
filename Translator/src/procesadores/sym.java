@@ -11,16 +11,15 @@ public interface sym {
   public static final int END_STRUCT = 4;
   public static final int END_BLOCK = 6;
   public static final int POW = 31;
-  public static final int STRING_LITERAL = 46;
+  public static final int STRING_LITERAL = 45;
   public static final int FUNCTION = 11;
   public static final int MULT = 30;
   public static final int CHAR = 14;
-  public static final int CHAR_LITERAL = 45;
+  public static final int CHAR_LITERAL = 44;
   public static final int NOT_EQUAL = 21;
   public static final int GREATER = 19;
-  public static final int NUM_INT = 43;
+  public static final int NUM_INT = 42;
   public static final int INT = 12;
-  public static final int ARRAY = 42;
   public static final int LESS = 18;
   public static final int MINUS = 27;
   public static final int AND = 24;
@@ -35,7 +34,7 @@ public interface sym {
   public static final int PLUS = 26;
   public static final int ASSIGN = 17;
   public static final int IF = 33;
-  public static final int ID = 47;
+  public static final int ID = 46;
   public static final int EOF = 0;
   public static final int RETURN = 39;
   public static final int EQUAL = 20;
@@ -45,7 +44,7 @@ public interface sym {
   public static final int MOD = 29;
   public static final int INIT_BLOCK = 5;
   public static final int REAL = 13;
-  public static final int NUM_REAL = 44;
+  public static final int NUM_REAL = 43;
   public static final int ELSE = 34;
   public static final int READ = 40;
   public static final int POINT = 36;
@@ -99,7 +98,6 @@ public interface sym {
   "RETURN",
   "READ",
   "PRINT",
-  "ARRAY",
   "NUM_INT",
   "NUM_REAL",
   "CHAR_LITERAL",

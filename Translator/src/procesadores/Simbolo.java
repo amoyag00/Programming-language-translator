@@ -17,6 +17,13 @@ public class Simbolo {
 	List<String> paramTypes;
 	String returnType;
 	
+	//Only arrays
+	int dimension;
+	
+	public Simbolo() {
+		
+	}
+	
 	public Simbolo(String nombre, Integer valor){
 		this.nombre = nombre;
 		this.valor = valor;
@@ -81,5 +88,23 @@ public class Simbolo {
 		this.returnType = returnType;
 	}
 	
+	public void setDimension(int dim) {
+		this.dimension = dim;
+	}
 	
+	public int getDimension() {
+		return this.dimension;
+	}
+	
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	
+	public String getNombre() {
+		return this.nombre;
+	}
+	
+	public void increaseDim() {
+		this.dimension++;
+	}
 }

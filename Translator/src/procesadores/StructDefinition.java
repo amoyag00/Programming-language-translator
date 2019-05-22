@@ -19,11 +19,12 @@ public class StructDefinition {
 	
 	//Se asume que la pila viene cargada de la forma tipo, nombre, tipo nombre, tipo, nombre, etc.
 	public void addAttributes(Stack t) {
-		for (int i=0 ;i<t.size();i+=2){
-			String attType =t.get(i).toString();
-			String attName = t.get(i+1).toString();
+		for (int i=0 ;i<t.size();i++){
+			Simbolo att =(Simbolo)t.get(i);
+			String attName = att.getNombre();
+			String attTipo = att.getTipo();
 		
-			this.attributes.put(attName, attType);
+			this.attributes.put(attName, attTipo);
 
 		}
 		
