@@ -8,6 +8,7 @@ public class Simbolo {
 	String nombre;
 	Object valor;
 	String tipo;
+	String javaCode;
 	int declaredLine;
 	int declaredCol;
 	//Only structs
@@ -19,15 +20,18 @@ public class Simbolo {
 	
 	//Only arrays
 	int dimension;
+	public ArrayList<Integer> dims;
 	
 	public Simbolo() {
-		
+		this.paramTypes= new ArrayList<String>();
+		this.dims= new ArrayList<Integer>();
 	}
 	
 	public Simbolo(String nombre, Integer valor){
 		this.nombre = nombre;
 		this.valor = valor;
 		this.paramTypes= new ArrayList<String>();
+		this.dims= new ArrayList<Integer>();
 	 }
 	
 	public Simbolo(String nombre, Integer valor, int line, int col){
@@ -107,4 +111,21 @@ public class Simbolo {
 	public void increaseDim() {
 		this.dimension++;
 	}
+
+	public String getCode() {
+		return javaCode;
+	}
+
+	public void setCode(String javaCode) {
+		this.javaCode = javaCode;
+	}
+	
+	public void addDim(int dim) {
+		this.dims.add(dim);
+	}
+	
+	public int getDim(int i) {
+		return this.dims.get(i);
+	}
+	
 }

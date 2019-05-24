@@ -1,0 +1,24 @@
+integer $a;
+real $a;
+character $c;
+bool $d;
+
+struct $e {
+	integer $a;
+	real $q;
+	character $c;
+	bool $z;
+};
+
+struct $e {
+	integer $r;
+	real $q;
+};
+endStructs
+
+funtion integer $main(){
+	integer $i;
+	integer $i;
+	$i = 0;
+	return 0;
+}

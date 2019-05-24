@@ -1,0 +1,6 @@
+endStructs
+
+function integer $main()
+	integer $i;
+	$i = 0;
+	return 0;

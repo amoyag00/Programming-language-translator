@@ -1,0 +1,14 @@
+endStructs
+
+function integer $prueba(){
+	integer $i;
+	$i = 0;
+	return 2;
+}
+
+function integer $main(){
+	integer $i;
+	$i = 0;
+	$prueba();
+	return 0;
+}
