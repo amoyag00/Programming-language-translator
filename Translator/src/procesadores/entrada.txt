@@ -13,6 +13,8 @@ struct $things{
    integer $number3;
    real $things;
    string $cadena;
+   character $char1;
+   bool $bool1;
    integer $arraysenores [4][5];
 };
 struct $things2{
@@ -24,12 +26,18 @@ struct $things2{
 
 
 endStructs
-function integer $hola (real $param1, real $param2){
+function real $hola (real $param1, real $param2){
+	real $wenas;
+	bool $xd;
+	real $numeros[3][4];
+	struct $things $thing;
 	$param1 = $param1 + $param2;
 	
-	return 0;
+	return $numeros[0][3];
 	
 }
+
+
 
 function real $main(){
 	integer $a, $b, $c;
@@ -37,6 +45,7 @@ function real $main(){
 	string $cadena;
 	real $d, $e, $f;
 	integer $nombre2 [2][5][4];
+	integer $array2 [2][6][4];
    struct $things $thing;
    struct $things $thing2;
    
@@ -54,6 +63,11 @@ function real $main(){
    }else{
       $thing.$number2 = $thing.$number2 + $thing.$number3; 
    };
+   
+   iter($nombre2[3][3][2]==$b){
+   		$nombre2 = $array2;
+   };
+   
    $hola($d, $d);
 	return $thing.$number2;
 }

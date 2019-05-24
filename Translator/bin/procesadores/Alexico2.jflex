@@ -81,8 +81,8 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 "read" { return new Symbol(sym.READ); }
 "print" { return new Symbol(sym.PRINT); }
 "\"" .* "\"" {  System.out.println("string literal");return new Symbol(sym.STRING_LITERAL, new String(yytext())); }
-"\'" . "\'" { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(0))); }
-[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)? {System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Float(yytext())); }
+"\'" . "\'" { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(1))); }
+[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)? {System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Double(yytext())); }
 [:digit:]+ { return new Symbol(sym.NUM_INT, new Integer(yytext())); }
 [ \t\r\n]+ {;}
 . { System.out.println("Error en lexico."+yytext()+"-"); }

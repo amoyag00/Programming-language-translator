@@ -55,18 +55,18 @@ terminal END_INSTR, STRUCT, END_STRUCT, INIT_BLOCK, END_BLOCK, OPEN_PAR, CLOSE_P
 
 /*Terminales con atributo*/
 terminal Integer NUM_INT;
-terminal Float NUM_REAL;
+terminal Double NUM_REAL;
 terminal Character CHAR_LITERAL;
 terminal String STRING_LITERAL;
 terminal String ID;
 
 /* No terminales sin atributo*/
-non terminal program, instructions, loop, if, else, conditions, condition, validate_operator, logic_operator, expression, assign, operator, create_struct, print;
+non terminal program ;
 
 /* No terminales con atributo*/
 /*non terminal  Integer expr, asignacion;*/
 non terminal Stack   list, structvars, params,arg_list;
-non terminal Simbolo function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
+non terminal Simbolo logic_operator, condition, validate_operator,print,loop, if, else, conditions,create_struct, operator,instructions, expression, assign,function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
 
 /*Precedencias*/
 precedence left PLUS,MINUS;
@@ -137,7 +137,9 @@ variables ::= type:sim list:l END_INSTR variables:sim2 {:
 	 		
 	 		code+=codeArray+", ";	
 		}else{
-			code +=simbolo.getCode()+", ";
+			
+			String initialValue=tabla.getInitialValueOf(sim.getTipo());
+			code +=simbolo.getCode()+ " = "+initialValue+", ";
 		}
 	}
 	
@@ -152,11 +154,12 @@ variables ::= type:sim list:l END_INSTR variables:sim2 {:
  			codeArray+="["+lastSymbol.getDim(i)+"]";
  		
  		}
- 		//es por qui
+ 		
  		code+=codeArray+";";
  		
 	}else{
-		code+=lastSymbol.getCode()+";";
+		String initialValue=tabla.getInitialValueOf(sim.getTipo());
+		code +=lastSymbol.getCode()+ " = "+initialValue+";";
 		
 	}
 	
@@ -224,7 +227,7 @@ type ::= INT {:
 		RESULT = sim;
 		
 		//Code
-		sim.setCode("float "); 
+		sim.setCode("double "); 
 		
 	:} | CHAR {: 
 	
@@ -330,7 +333,6 @@ structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 :} | type:sim ID:nombre END_INSTR {:
 
 	RESULT=new Stack();
-	//TODO cuidado aqui
 	sim.setNombre(nombre);
 	RESULT.push(sim);
 	
@@ -340,7 +342,6 @@ structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 :} | type:sim array:simbolo END_INSTR structvars:stack {:
 
 	RESULT=stack;
-	//TODO cuidado aqui
 	simbolo.setTipo(sim.getTipo());
 	RESULT.push(simbolo);
 	
@@ -356,7 +357,6 @@ structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 :} | type:sim array:simbolo END_INSTR{:
 
 	RESULT=new Stack();
-	//TODO cuidado aqui
 	simbolo.setTipo(sim.getTipo());
 	RESULT.push(simbolo);
 	
@@ -415,7 +415,9 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
  		if(function.getParamTypes().size()!=0){
 			error_semantico("La funcion main no puede tener argumentos");
 		}
- 		code+="public static void main(String [] args){";
+		code+="public static void main(String [] args){\nMain main = new Main();\n"+
+			"main.$main();\n}\n";
+ 		code+="public void $main(){\n";
  	}else{
  		code ="public "+sim1.getCode()+s+"(";
 	 	if(!l.isEmpty()){
@@ -433,23 +435,27 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
  	function.setCode(code);
  	RESULT=function;
  	
-:} INIT_BLOCK variables instructions RETURN id:sim2 {:
+:} INIT_BLOCK variables:sim2 instructions:sim3 RETURN id:sim4 {:
 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
-			if(!tabla.isAssignable(sim1.getTipo(), sim2.getTipo())){
+			
+			if(sim4.getDimension()!=sim1.getDimension()){
 				error_semantico("La función "+s+" debe de retornar un valor "+
-				"de tipo "+sim1.getTipo()+" y está retornando un valor de tipo "+sim2.getTipo());
+				"de dimension "+sim1.getDimension()+" y está retornando un valor de dimension "+sim4.getDimension());
+			}else if(!tabla.isAssignable(sim1.getTipo(), sim4.getTipo())){
+				error_semantico("La función "+s+" debe de retornar un valor "+
+				"de tipo "+sim1.getTipo()+" y está retornando un valor de tipo "+sim4.getTipo());
 			}
 			tabla.reset();
 			
 			
 			//Code
 			String code ="";
-			
+			code+=sim2.getCode()+sim3.getCode();
 			code+="return ";
 			if(s.equals("$main")){
 				code+=";\n}\n";
 			}else{
-				code+="id"+";\n}\n";
+				code+=sim4.getCode()+";\n}\n";
 			}
 			RESULT.setCode(RESULT.getCode()+code);
 :} END_INSTR END_BLOCK;
@@ -473,17 +479,75 @@ params ::= type:sim ID:nombre COMMA params:l {:
 		   		RESULT = new Stack();
 		   :};
 
-instructions ::= expression END_INSTR instructions {: :} | expression END_INSTR {: :};
+instructions ::= expression:sim1 END_INSTR instructions:sim2 {:
+	Simbolo sim = new Simbolo(); 
+	RESULT = sim;
+	
+	//Code
+	sim.setCode(sim1.getCode()+";\n"+sim2.getCode());
+	
+	
+:} | expression:sim1 END_INSTR {: 
+	Simbolo sim = new Simbolo();
+	RESULT = sim;
+	
+	//Code 
+	sim.setCode(sim1.getCode()+";\n");
+	
+:};
 
-loop ::= WHILE OPEN_PAR conditions CLOSE_PAR INIT_BLOCK instructions END_BLOCK {: :};
+loop ::= WHILE OPEN_PAR conditions:sim1 CLOSE_PAR INIT_BLOCK instructions:sim2 END_BLOCK {: 
+	
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("while("+sim1.getCode()+"){\n"+sim2.getCode()+"}\n");
+	RESULT = sim;
 
-if ::= IF OPEN_PAR conditions CLOSE_PAR INIT_BLOCK instructions END_BLOCK else {: :};
+:};
 
-else ::= ELSE INIT_BLOCK instructions END_BLOCK {: :} | {: :};
+if ::= IF OPEN_PAR conditions:sim1 CLOSE_PAR INIT_BLOCK instructions:sim2 END_BLOCK else:sim3 {: 
 
-conditions ::= condition {: :} | condition logic_operator conditions {: :};
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("if("+sim1.getCode()+"){\n"+sim2.getCode()+"}"+sim3.getCode()+"\n");
+	RESULT = sim;
+	
+:};
 
-condition ::= id validate_operator id {: :};
+else ::= ELSE INIT_BLOCK instructions:sim1 END_BLOCK {: 
+	
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("else{\n"+sim1.getCode()+"}\n");
+	RESULT = sim;
+	
+:} | {: 
+
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("");
+
+:};
+
+conditions ::= condition:sim1 {: 
+
+	//Code
+	RESULT = sim1;
+	
+:} | condition:sim1 logic_operator conditions:sim2 {: 
+
+	//Code
+	RESULT=sim2;
+	sim2.setCode(sim1.getCode()+sim2.getCode());
+	
+:};
+
+condition ::= id:sim1 validate_operator:sim2 id:sim3 {: 
+	Simbolo sim = new Simbolo();
+	sim.setCode(sim1.getCode()+sim2.getCode()+sim3.getCode());
+	RESULT=sim;
+
+:};
 
 id ::= ID:s {: 
 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
@@ -493,6 +557,8 @@ id ::= ID:s {:
 				error_semantico("La variable "+s+" no se ha declarado");
 			}else{
 				RESULT= simbolo;
+				
+				simbolo.setCode(s);
 			}
 			
 		:} | literal:sim {:
@@ -505,7 +571,7 @@ id ::= ID:s {:
 			Simbolo simbolo=tabla.buscarGlobal(s);
 			
 			if(simbolo==null){
-				System.out.println("La variable "+s+" no se ha declarado");
+				error_semantico("La variable "+s+" no se ha declarado");
 			}else{
 				StructDefinition def =simbolo.getStructInstance().getStructDef();
 				String attType= def.getTipoOf(att);
@@ -519,6 +585,9 @@ id ::= ID:s {:
 				}
 				
 			}	
+			
+			//Code
+			RESULT.setCode(s+"."+att);
 			
 			
 		:} | ID:s OPEN_PAR arg_list:tipos CLOSE_PAR {:
@@ -536,7 +605,8 @@ id ::= ID:s {:
 						" parámetros");
 					}
 					for(int i=tipos.size()-1; i>-1;i--){
-						if(!expectedTipos.get(tipos.size()-1-i).equals(tipos.get(i))){
+						Simbolo simb = (Simbolo)tipos.get(i);
+						if(!expectedTipos.get(tipos.size()-1-i).equals(simb.getTipo())){
 							error_semantico("El parametro "+(tipos.size()-1-i)+
 							"de la funcion "+ s+" ha de ser de tipo "+
 							expectedTipos.get(tipos.size()-i));
@@ -546,6 +616,18 @@ id ::= ID:s {:
 				Simbolo sim = new Simbolo();
 				sim.setTipo(function.getTipoRetorno());
 				RESULT = sim;
+				
+				//Code
+				//todo tipos
+				String list="";
+				for(int i=tipos.size()-1; i>0;i--){
+					Simbolo aux = (Simbolo)tipos.get(i);
+					list+=aux.getCode()+", ";
+				}
+				Simbolo lastSymbol =(Simbolo)tipos.get(0);
+				list+=lastSymbol.getCode();
+				
+				sim.setCode(s+"("+list+")");
 				
 	   :} |ID:s index:sim {: 
 	   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
@@ -557,9 +639,15 @@ id ::= ID:s {:
 				sim.setTipo(simbolo.getTipo());
 				sim.setDimension(simbolo.getDimension() - sim.getDimension());
 				RESULT = sim;
-				
-			
 			}
+			
+			//Code
+			String codeArray="";
+			int dimension = simbolo.getDimension();
+	 		for(int j=dimension-1;j>-1;j--){
+	 			codeArray+="["+sim.getDim(j)+"]";
+	 		}
+			sim.setCode(s+codeArray);
 	   :};
 	   
 index ::= OPEN_BRACKETS NUM_INT:num CLOSE_BRACKETS index:sim {: 
@@ -583,39 +671,136 @@ index ::= OPEN_BRACKETS NUM_INT:num CLOSE_BRACKETS index:sim {:
 	
 :};   
 
-validate_operator ::= EQUAL {: :} | NOT_EQUAL {: :} | LESS_EQUAL {: :} | GREATER_EQUAL {: :} |
-				 	  LESS {: :} |  GREATER {: :};
+validate_operator ::= EQUAL {: 
 
-logic_operator ::= AND {: :} | OR {: :};
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("==");
+	RESULT = sim;
+	
+:} | NOT_EQUAL {: 
 
-expression ::= assign {: :} | 
-				ID:s OPEN_PAR arg_list:tipos CLOSE_PAR  {:
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("!=");
+	RESULT = sim;
+	
+:} | LESS_EQUAL {: 
+
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("<=");
+	RESULT = sim;
+	
+:} | GREATER_EQUAL {: 
+
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode(">=");
+	RESULT = sim;
+	
+:} | LESS {: 
+
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("<");
+	RESULT = sim;
+	
+:} |  GREATER {: 
+
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode(">");
+	RESULT = sim;
+	
+:};
+
+logic_operator ::= AND {: 
+
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("&&");
+	RESULT = sim;
+	
+:} | OR {: 
+
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("||");
+	RESULT = sim;
+	
+:};
+
+expression ::= assign:sim {: 
+
+	RESULT = sim;
+:} | ID:s OPEN_PAR arg_list:tipos CLOSE_PAR  {:
 				
-					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
-					Simbolo function=tabla.buscarGlobal(s);
-					
-		 			if(function==null){
-						error_semantico("La función "+s+" no existe");	
-					}else if(!function.getTipo().equals("FUNCTION")){
-						error_semantico(s+" no es una función");
-					}else{
-						List<String> expectedTipos = function.getParamTypes();
-						if(expectedTipos.size()!=tipos.size()){
-							error_semantico("La función "+s+" espera "+expectedTipos.size()+
-							" parámetros");
-						}
-						for(int i=tipos.size()-1; i>-1;i--){
-							if(!expectedTipos.get(tipos.size()-1-i).equals(tipos.get(i))){
-								error_semantico("El parametro "+(tipos.size()-i)+
-								" de la funcion "+ s+" ha de ser de tipo "+
-								expectedTipos.get(tipos.size()-1-i));
-							}
+				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+				Simbolo function=tabla.buscarGlobal(s);
+				
+	 			if(function==null){
+					error_semantico("La función "+s+" no existe");	
+				}else if(!function.getTipo().equals("FUNCTION")){
+					error_semantico(s+" no es una función");
+				}else{
+					List<String> expectedTipos = function.getParamTypes();
+					if(expectedTipos.size()!=tipos.size()){
+						error_semantico("La función "+s+" espera "+expectedTipos.size()+
+						" parámetros");
+					}
+					for(int i=tipos.size()-1; i>-1;i--){
+						Simbolo simb = (Simbolo)tipos.get(i);
+						if(!expectedTipos.get(tipos.size()-1-i).equals(simb.getTipo())){
+							error_semantico("El parametro "+(tipos.size()-1-i)+
+							"de la funcion "+ s+" ha de ser de tipo "+
+							expectedTipos.get(tipos.size()-i));
 						}
 					}
-				:} | create_struct  {: :} | 
- 			   READ OPEN_PAR type COMMA id CLOSE_PAR {: :} |
- 			   PRINT OPEN_PAR print CLOSE_PAR {: :} |
- 			   loop {: :} | if {: :};
+				}
+				Simbolo sim = new Simbolo();
+				sim.setTipo(function.getTipoRetorno());
+				RESULT = sim;
+				
+				//Code
+				//todo tipos
+				String list="";
+				for(int i=tipos.size()-1; i>0;i--){
+					Simbolo aux = (Simbolo)tipos.get(i);
+					list+=aux.getCode()+", ";
+				}
+				Simbolo lastSymbol =(Simbolo)tipos.get(0);
+				list+=lastSymbol.getCode();
+				
+				sim.setCode(s+"("+list+")");
+:} | create_struct:sim  {: 
+
+	//Code 
+	RESULT = sim;
+
+:} | READ OPEN_PAR type COMMA id CLOSE_PAR {: 
+	//Code
+	//TODO
+	RESULT= new Simbolo();
+	RESULT.setCode("");
+:} | PRINT OPEN_PAR print:sim1 CLOSE_PAR {:
+ 	
+ 	//Code
+	Simbolo sim = new Simbolo();
+	sim.setCode("System.out.println("+sim1.getCode()+")");
+	RESULT = sim;
+	
+:} | loop:sim {: 
+	
+	//Code
+	RESULT = sim;
+	
+:} | if:sim {: 
+	
+	//Code
+	RESULT = sim;
+	
+:};
  
 assign ::= ID:s ASSIGN numeric_expr:sim {: 
 				
@@ -627,15 +812,20 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 				}else{
 					String expectedTipo = simbolo.getTipo();
 					if(!tabla.isAssignable(expectedTipo,sim.getTipo())){
-						System.out.println("No se puede asignar una variable de tipo "+
+						error_semantico("No se puede asignar una variable de tipo "+
 						sim.getTipo()+" a una variable de tipo "+expectedTipo);
 					}else if(simbolo.getDimension()!=sim.getDimension()){
-						System.out.println("No se puede asignar una variable de dimensión "+
+						error_semantico("No se puede asignar una variable de dimensión "+
 						sim.getDimension()+" a una variable de dimensión "+simbolo.getDimension());
 					}
 				}
 				
-		   :} | ID:s index ASSIGN numeric_expr:sim {: 
+				//Code
+				Simbolo simb = new Simbolo();
+				simb.setCode(s+" = "+sim.getCode());
+				RESULT=simb;
+				
+		   :} | ID:s index:sim1 ASSIGN numeric_expr:sim2 {: 
 		   		
 		   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					Simbolo simbolo=tabla.buscarGlobal(s);
@@ -644,11 +834,30 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 					error_semantico("La variable "+s+" no existe");
 				}else{
 					String expectedTipo = simbolo.getTipo();
-					if(!tabla.isAssignable(expectedTipo,sim.getTipo())){
-						System.out.println("No se ha puede asignar una variable de tipo "+
-						sim.getTipo()+" a una variable de tipo "+expectedTipo);
+					if(!tabla.isAssignable(expectedTipo,sim2.getTipo())){
+						error_semantico("No se ha puede asignar una variable de tipo "+
+						sim2.getTipo()+" a una variable de tipo "+expectedTipo);
+						
+					}else{
+						int currentDim=simbolo.getDimension()-sim1.getDimension();
+						if(currentDim!=sim2.getDimension()){
+							error_semantico("No se ha puede asignar una variable de dimension "+
+							sim2.getDimension()+" a una variable de dimension "+sim1.getDimension());
+						}
 					}
 				}
+				
+				//Code
+				Simbolo simb = new Simbolo();
+				String codeArray="";
+				
+				int dimension = sim1.getDimension();
+		 		for(int j=dimension-1;j>-1;j--){
+		 			codeArray+="["+sim1.getDim(j)+"]";
+		 		}
+				
+				simb.setCode(s+codeArray+" = "+sim2.getCode());
+				RESULT=simb;
 				
 		   :} | ID:sStruct POINT ID:attName ASSIGN numeric_expr:sim {: 
 		   
@@ -666,7 +875,9 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 						error_semantico("No se puede asignar una variable de dimensión "+
 						sim.getDimension()+" a un atributo de una struct de dimensión "+struct.getDimension());
 					}else if(tabla.isAssignable(attTipo, sim.getTipo())){
-						RESULT = attTipo;
+						Simbolo tipo = new Simbolo();
+						tipo.setTipo(attTipo);
+						RESULT = tipo;
 		   			}else{
 		   				error_semantico("No se puede asignar una variable de tipo "+
 		   				sim.getTipo()+" a un atributo de una struct de tipo "+attTipo);
@@ -674,9 +885,14 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 		   			
 		   		}
 		   		
+		   		//Code
+				Simbolo simbolo = new Simbolo();
+				simbolo.setCode(sStruct+"."+attName+" = "+sim.getCode());
+				RESULT=simbolo;
+		   		
 		   :};
 
-numeric_expr ::= numeric_expr:sim1 operator id:sim2 {:
+numeric_expr ::= numeric_expr:sim1 operator:simOP id:sim2 {:
 					
 					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					
@@ -696,21 +912,71 @@ numeric_expr ::= numeric_expr:sim1 operator id:sim2 {:
 							RESULT= sim;
 						}
 					}
+					
+					//Code
+					//TODO pow
+					RESULT.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
+					
 				 :} | id:sim {: 
 				 
 				 	RESULT=sim;
+				 	
+				 	//Code
+				 	
 				 	
 				 :} | MINUS id:sim {:
 				 
 				 	RESULT= sim;
 				 	
+				 	//Code
+				 	sim.setCode("-"+sim.getCode());
+				 	
 				 :} | OPEN_PAR numeric_expr:sim CLOSE_PAR  {: 
 				 
 				 	RESULT= sim;
 				 	
+				 	
+				 	//Code
+				 	sim.setCode("("+sim.getCode()+")");
 				 :};
 
-operator ::=  PLUS  {: :} | MINUS{: :}| POW{: :}| MOD{: :}| DIV {: :}| MULT {: :};
+operator ::=  PLUS  {: 
+
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("+");
+
+:} | MINUS{: 
+	
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("-");
+
+:}| POW{: 
+	
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("^");
+
+:}| MOD{: 
+
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("%");
+	
+:}| DIV {: 
+
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("/");
+
+:}| MULT {: 
+
+	//Code
+	RESULT = new Simbolo();
+	RESULT.setCode("*");
+
+:};
 
 create_struct ::=  STRUCT ID:structDef ID:s {: 
 				
@@ -725,9 +991,23 @@ create_struct ::=  STRUCT ID:structDef ID:s {:
 						simbolo.setTipo("STRUCT");
 						tabla.insertar(simbolo);
 					}
-				:};
+					
+					//Code
+					Simbolo simbolo = new Simbolo();
+					simbolo.setCode(structDef+" "+s+" = new "+structDef+"()");
+					
+					RESULT = simbolo;
+:};
 
-print ::=  id COMMA print  {: :} | id {: :};
+print ::=  id:sim1 COMMA print:sim2  {:
+	//Code 
+	Simbolo sim = new Simbolo();
+	sim.setCode(sim1.getCode()+"+"+sim2.getCode());
+	RESULT=sim;
+:} | id :sim1{: 
+	//Code
+	RESULT=sim1;
+:};
 
 arg_list ::= ID:s COMMA arg_list:stack  {:
 	
@@ -738,13 +1018,19 @@ arg_list ::= ID:s COMMA arg_list:stack  {:
 	 	if(simbolo==null){
 			error_semantico("La variable "+s+" no se ha declarado");	
 		}else{
-			RESULT.push(simbolo.getTipo());		
+			RESULT.push(simbolo);		
 		}
+		
+		//Code
+		simbolo.setCode(s);
 	
 	:} | literal:l COMMA arg_list:stack {:
 
 		RESULT= stack; 
-		RESULT.push(l);		
+		RESULT.push(l);
+		
+		//Code
+				
 		
 		
 	:} | ID:s {: 
@@ -756,51 +1042,73 @@ arg_list ::= ID:s COMMA arg_list:stack  {:
 	 	if(simbolo==null){
 			error_semantico("La variable "+s+" no se ha declarado");	
 		}else{
-			RESULT.push(simbolo.getTipo());		
+			RESULT.push(simbolo);		
 		}
 	 
+	 	//Code
+	 	simbolo.setCode(s);
 	:} | literal:l {:
 	 
 		RESULT = new Stack();
 		RESULT.push(l);
+		
+		//Code
 	:}| {: 
 		RESULT = new Stack();
 	:};
 
-literal ::= NUM_INT {: 
+literal ::= NUM_INT:num {: 
 
 	Simbolo sim = new Simbolo();
 	sim.setTipo("INT");
-	RESULT=sim; 
+	RESULT=sim;
 	
-:} | NUM_REAL {: 
+	//Code
+	sim.setCode(""+num); 
+	
+:} | NUM_REAL:num {: 
 
 	Simbolo sim = new Simbolo();
 	sim.setTipo("REAL");
-	RESULT=sim; 
+	RESULT=sim;
 	
-:} | CHAR_LITERAL {: 
+	//Code
+	sim.setCode(""+num); 
+	
+:} | CHAR_LITERAL:chr {: 
 
 	Simbolo sim = new Simbolo();
 	sim.setTipo("CHAR");
 	RESULT=sim; 
 	
-:} | STRING_LITERAL {:
+	//Code
+	sim.setCode("'"+chr+"'");
+	
+:} | STRING_LITERAL:str {:
  
 	Simbolo sim = new Simbolo();
 	sim.setTipo("STRING");
 	RESULT=sim;
+	
+	//Code
+	sim.setCode(str);
 	
 :} | TRUE{: 
 
 	Simbolo sim = new Simbolo();
 	sim.setTipo("BOOL");
 	RESULT=sim;
+	
+	//Code
+	sim.setCode("true");
 	 
 :} | FALSE{: 
 
 	Simbolo sim = new Simbolo();
 	sim.setTipo("BOOL");
-	RESULT=sim; 
+	RESULT=sim;
+	
+	//Code
+	sim.setCode("false"); 
 	
 :};

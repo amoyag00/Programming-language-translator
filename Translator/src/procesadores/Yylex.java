@@ -971,7 +971,7 @@ class Yylex implements java_cup.runtime.Scanner {
             // fall through
           case 76: break;
           case 30: 
-            { System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Float(yytext()));
+            { System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Double(yytext()));
             } 
             // fall through
           case 77: break;
@@ -981,7 +981,7 @@ class Yylex implements java_cup.runtime.Scanner {
             // fall through
           case 78: break;
           case 32: 
-            { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(0)));
+            { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(1)));
             } 
             // fall through
           case 79: break;

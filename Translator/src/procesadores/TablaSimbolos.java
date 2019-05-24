@@ -171,4 +171,34 @@ public class TablaSimbolos {
 	public boolean isNumeric(String tipo) {
 		return tipo.equals("INT") || tipo.equals("REAL");
 	}
+	
+	public String getInitialValueOf(String tipo) {
+		String initialValue="";
+		
+		switch (tipo) {
+			case "INT":
+				initialValue="0";
+				break;
+	
+			case "REAL":
+				initialValue="0.0";
+				break;
+	
+			case "STRING":
+				initialValue="\"\"";
+				break;
+	
+			case "CHAR":
+				initialValue="' '";
+				break;
+	
+			case "BOOL":
+				initialValue="false";
+				break;
+	
+		}
+		
+		return initialValue;
+		
+	}
 }

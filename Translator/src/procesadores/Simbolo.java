@@ -125,7 +125,10 @@ public class Simbolo {
 	}
 	
 	public int getDim(int i) {
-		return this.dims.get(i);
+		if(i<this.dims.size()) {
+			return this.dims.get(i);
+		}
+		return -1;
 	}
 	
 }
