@@ -11,7 +11,14 @@ struct $things{
    real $number;
    real $number2;
    integer $number3;
+   real $things;
    string $cadena;
+   integer $arraysenores [4][5];
+};
+struct $things2{
+   real $number;
+   
+   string $arraysenores [1];
 };
 
 

@@ -61,12 +61,12 @@ terminal String STRING_LITERAL;
 terminal String ID;
 
 /* No terminales sin atributo*/
-non terminal program, struct, functions, function, instructions, loop, if, else, conditions, condition, validate_operator, logic_operator, expression, assign, operator, create_struct, print;
+non terminal program, instructions, loop, if, else, conditions, condition, validate_operator, logic_operator, expression, assign, operator, create_struct, print;
 
 /* No terminales con atributo*/
 /*non terminal  Integer expr, asignacion;*/
 non terminal Stack   list, structvars, params,arg_list;
-non terminal Simbolo structs,literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
+non terminal Simbolo function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
 
 /*Precedencias*/
 precedence left PLUS,MINUS;
@@ -75,14 +75,19 @@ precedence right POW;
 
 /*Gramatica*/
 
-program ::= declarations:sim1 END_STRUCT functions {:  
+program ::= declarations:sim1 END_STRUCT functions:sim2 {:  
 
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
-	if( tabla.buscarGlobal("$main")==null ){
+	Simbolo main=tabla.buscarGlobal("$main");
+	if( main==null ){
 		error_semantico("No se ha declarado una funcion main");
-	}
+	}else if(!main.getTipo().equals("FUNCTION")){
+		error_semantico("No se ha declarado una funcion main");
+	} 
+		
+	
 	JavaGenerator jGen = new JavaGenerator();
-	jGen.addCode(sim1.getCode());
+	jGen.addCode(sim1.getCode()+"\n"+sim2.getCode());
 	jGen.closeMain();
 	jGen.generate();
 
@@ -95,7 +100,7 @@ declarations ::= variables:sim1 structs:sim2 {:
 	RESULT = sim1;
 	
 	//Code
-	sim1.setCode(sim1.getCode()/*+sim2.getCode()*/);
+	sim1.setCode(sim1.getCode()+sim2.getCode());
 :};
 
 variables ::= type:sim list:l END_INSTR variables:sim2 {:
@@ -265,7 +270,18 @@ array ::= ID:s index:sim{:
 :};
 
 
-structs ::= struct END_INSTR structs{: :}  | {: :};
+structs ::= struct:sim1 END_INSTR structs:sim2{: 
+	RESULT= sim2;
+	
+	//Code
+	sim2.setCode(sim1.getCode()+sim2.getCode());
+
+:}  | {: 
+	RESULT = new Simbolo();
+	
+	//Code
+	RESULT.setCode("");
+:};
 
 struct ::= STRUCT ID:s {: 
 
@@ -275,21 +291,41 @@ struct ::= STRUCT ID:s {:
 		error_semantico("La struct "+ s+" ya se ha definido ");
 		
 	}
+		
+:}  INIT_BLOCK{: 
+
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	tabla.set();
 	
-	
-:}  INIT_BLOCK structvars:t END_BLOCK{: 
+:}structvars:t END_BLOCK{: 
 
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	StructDefinition def = new StructDefinition(s);
 	def.addAttributes(t);
 	tabla.addStructDef(def);
+	
+	tabla.reset();
+	
+	//Code
+	RESULT = new Simbolo();
+	String code = "public class "+s+"{\n";
+	
+	for(int i=t.size()-1;i>-1;i--){
+		Simbolo current = (Simbolo)t.get(i);
+		code+=current.getCode();
+	}
+	code+="}";
+	RESULT.setCode(code);
 :};
 
 structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 	RESULT= stack;
-	//TODO cuidado aqui
+	
 	sim.setNombre(nombre);
 	RESULT.push(sim);
+	
+	//Code
+	sim.setCode(sim.getCode()+" "+nombre+";\n");
 
 :} | type:sim ID:nombre END_INSTR {:
 
@@ -298,12 +334,24 @@ structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 	sim.setNombre(nombre);
 	RESULT.push(sim);
 	
+	//Code
+	sim.setCode(sim.getCode()+" "+nombre+";\n");
+	
 :} | type:sim array:simbolo END_INSTR structvars:stack {:
 
 	RESULT=stack;
 	//TODO cuidado aqui
 	simbolo.setTipo(sim.getTipo());
 	RESULT.push(simbolo);
+	
+	//Code
+	String arrayCode ="";
+	int dimension = simbolo.getDimension();
+	for(int i=dimension-1;i>-1;i--){
+		arrayCode+="["+simbolo.getDim(i)+"]";
+	
+	}
+	simbolo.setCode(sim.getCode()+" "+simbolo.getCode()+" = new "+sim.getCode()+arrayCode+";\n");
 
 :} | type:sim array:simbolo END_INSTR{:
 
@@ -311,16 +359,36 @@ structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
 	//TODO cuidado aqui
 	simbolo.setTipo(sim.getTipo());
 	RESULT.push(simbolo);
+	
+	//Code
+	String arrayCode ="";
+	int dimension = simbolo.getDimension();
+	for(int i=dimension-1;i>-1;i--){
+		arrayCode+="["+simbolo.getDim(i)+"]";
+	
+	}
+	simbolo.setCode(sim.getCode()+" "+simbolo.getCode()+" = new "+sim.getCode()+arrayCode+";\n");
+	
 
 :};
 
 
-functions ::= function functions {: :} | function {: :};
+functions ::= function:sim1 functions:sim2 {: 
+	
+	RESULT = sim2;
+	sim2.setCode(sim1.getCode()+sim2.getCode());
+	
+:} | function:sim1 {:
 
-function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOCK {:
+	RESULT = sim1;
+
+ :};
+
+function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	Simbolo function = null;
  	if(tabla.buscarGlobal(s)==null){
- 		Simbolo function = new Simbolo(s, null);
+ 		function = new Simbolo(s, null);
 		function.setTipo("FUNCTION");
 		for (int i=l.size()-1 ;i>-1;i--){
 			Simbolo sim = (Simbolo) l.get(i);
@@ -339,24 +407,68 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOC
  	}else{
  		error_semantico("Ya se ha declarado la función "+ s);
  	}
-:}variables instructions RETURN id:sim2 {:
+ 	
+ 	//Code
+ 	String code="";
+ 	
+ 	if(s.equals("$main")){
+ 		if(function.getParamTypes().size()!=0){
+			error_semantico("La funcion main no puede tener argumentos");
+		}
+ 		code+="public static void main(String [] args){";
+ 	}else{
+ 		code ="public "+sim1.getCode()+s+"(";
+	 	if(!l.isEmpty()){
+		 	for(int i=l.size()-1;i>0;i--){
+		 		Simbolo aux = (Simbolo)l.get(i);
+		 		code += aux.getCode()+",";
+		 	}
+		 	Simbolo aux = (Simbolo)l.get(0);
+		 	code += aux.getCode();
+		 	code += "){\n";
+		 	
+	 	}
+ 	}
+ 	
+ 	function.setCode(code);
+ 	RESULT=function;
+ 	
+:} INIT_BLOCK variables instructions RETURN id:sim2 {:
 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 			if(!tabla.isAssignable(sim1.getTipo(), sim2.getTipo())){
 				error_semantico("La función "+s+" debe de retornar un valor "+
 				"de tipo "+sim1.getTipo()+" y está retornando un valor de tipo "+sim2.getTipo());
 			}
 			tabla.reset();
-		
+			
+			
+			//Code
+			String code ="";
+			
+			code+="return ";
+			if(s.equals("$main")){
+				code+=";\n}\n";
+			}else{
+				code+="id"+";\n}\n";
+			}
+			RESULT.setCode(RESULT.getCode()+code);
 :} END_INSTR END_BLOCK;
 
 params ::= type:sim ID:nombre COMMA params:l {:
 				RESULT = l;
 				RESULT.push(sim);
-				sim.setNombre(nombre); 
+				sim.setNombre(nombre);
+				
+				//Code
+				sim.setCode(sim.getCode()+ nombre); 
+				
 		   :} | type:sim ID:nombre {:
 		   		RESULT = new Stack();
 		   		RESULT.push(sim);
 		   		sim.setNombre(nombre);
+		   		
+		   		//Code
+				sim.setCode(sim.getCode()+ nombre); 
 		   :} | {: 
 		   		RESULT = new Stack();
 		   :};
