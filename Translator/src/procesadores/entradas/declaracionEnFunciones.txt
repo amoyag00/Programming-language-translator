@@ -19,8 +19,14 @@ struct $p {
 };
 endStructs
 
+
 function integer $main(){
 	integer $i;
+	bool $b;
+	character $v[2][1];
+	struct $e $f;
+	struct $p $o;
 	$i = 0;
+	$f.$a = $i;
 	return 0;
 }

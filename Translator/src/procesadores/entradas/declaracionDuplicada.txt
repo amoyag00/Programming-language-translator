@@ -1,5 +1,5 @@
 integer $a;
-real $b;
+real $a;
 character $c;
 bool $d;
 
@@ -8,12 +8,17 @@ struct $e {
 	real $q;
 	character $c;
 	bool $z;
-}
+};
 
-struct $p {
+struct $e {
 	integer $r;
 	real $q;
-}
-endstructs
+};
+endStructs
 
-function
+funtion integer $main(){
+	integer $i;
+	integer $i;
+	$i = 0;
+	return 0;
+}

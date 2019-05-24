@@ -546,7 +546,6 @@ arg_list ::= ID:s COMMA arg_list:stack  {:
 		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 		Simbolo simbolo=tabla.buscarGlobal(s);
 		
-		tabla.imprimir();
 	 	if(simbolo==null){
 			error_semantico("La variable "+s+" no se ha declarado");	
 		}else{
