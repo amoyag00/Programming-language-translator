@@ -69,7 +69,14 @@ precedence right POW;
 
 /*Gramatica*/
 
-program ::= declarations END_STRUCT functions {:  :};
+program ::= declarations END_STRUCT functions {:  
+
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	if( tabla.buscarGlobal("$main")==null ){
+		System.out.println("Error, no se ha declarado una funcion main");
+	}
+
+:}| error {: this.parser.error_sintactico(this.parser.cur_token);:};
 
 declarations ::= variables structs {:  :};
 
@@ -167,20 +174,22 @@ array ::= ID:s index:sim{:
 
 structs ::= struct END_INSTR structs{: :}  | {: :};
 
-struct ::= STRUCT ID:s INIT_BLOCK structvars:t END_BLOCK {: 
+struct ::= STRUCT ID:s {: 
+
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	
-	if(tabla.buscarStructDef(s)==null){
-		
-		StructDefinition def = new StructDefinition(s);
-		def.addAttributes(t);
-		tabla.addStructDef(def);
-	
-	}else{
-		System.out.println("Error, la struct "+ s+" ya se ha definido ");
+	if(tabla.buscarStructDef(s)!=null){
+		System.out.println("Error, la struct "+ s+" ya se ha definido "+analizadorLexico.linea());
+		System.exit(-1);
 	}
 	
 	
+:}  INIT_BLOCK structvars:t END_BLOCK{: 
+
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	StructDefinition def = new StructDefinition(s);
+	def.addAttributes(t);
+	tabla.addStructDef(def);
 :};
 
 structvars ::= type:sim ID:nombre END_INSTR structvars:stack {:
@@ -221,13 +230,19 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOC
  		Simbolo function = new Simbolo(s, null);
 		function.setTipo("FUNCTION");
 		for (int i=l.size()-1 ;i>-1;i--){
-		Simbolo sim = (Simbolo) l.get(i);
+			Simbolo sim = (Simbolo) l.get(i);
 			function.addParamType( sim.getTipo());
 		}
 		tabla.insertar(function);
 		function.setTipo("FUNCTION");
 		function.setTipoRetorno(sim1.getTipo());
  		tabla.set();
+ 		
+ 		for (int i=l.size()-1 ;i>-1;i--){
+			Simbolo sim = (Simbolo) l.get(i);
+			tabla.insertar(sim);
+		}
+ 		
  	}else{
  		System.out.println("Error, ya se ha declarado la función "+ s);
  	}
@@ -237,15 +252,18 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOC
 				System.out.println("Error, la función "+s+" debe de retornar un valor "+
 				"de tipo "+sim1.getTipo()+" y está retornando un valor de tipo "+sim2.getTipo());
 			}
+			tabla.reset();
 		
 :};
 
-params ::= type:sim ID COMMA params:l {:
+params ::= type:sim ID:nombre COMMA params:l {:
 				RESULT = l;
-				RESULT.push(sim); 
-		   :} | type:sim ID {:
+				RESULT.push(sim);
+				sim.setNombre(nombre); 
+		   :} | type:sim ID:nombre {:
 		   		RESULT = new Stack();
 		   		RESULT.push(sim);
+		   		sim.setNombre(nombre);
 		   :} | {: 
 		   		RESULT = new Stack();
 		   :};
