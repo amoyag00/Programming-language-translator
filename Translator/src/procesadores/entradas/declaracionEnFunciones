@@ -1,0 +1,19 @@
+integer $a;
+real $b;
+character $c;
+bool $d;
+
+struct $e {
+	integer $a;
+	real $q;
+	character $c;
+	bool $z;
+}
+
+struct $p {
+	integer $r;
+	real $q;
+}
+endstructs
+
+function

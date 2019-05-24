@@ -138,6 +138,7 @@ public class TablaSimbolos {
 				switch (tipo) {
 					case "BOOL":
 						assignable = true;
+						break;
 					default:
 						assignable = false;
 				}

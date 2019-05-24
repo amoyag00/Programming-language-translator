@@ -252,7 +252,7 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOC
  	}else{
  		error_semantico("Ya se ha declarado la función "+ s);
  	}
-:}variables instructions RETURN id:sim2 END_INSTR END_BLOCK {:
+:}variables instructions RETURN id:sim2{:
 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 			if(!tabla.isAssignable(sim1.getTipo(), sim2.getTipo())){
 				error_semantico("La función "+s+" debe de retornar un valor "+
@@ -260,7 +260,7 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR INIT_BLOC
 			}
 			tabla.reset();
 		
-:};
+:} END_INSTR END_BLOCK;
 
 params ::= type:sim ID:nombre COMMA params:l {:
 				RESULT = l;
@@ -545,7 +545,8 @@ arg_list ::= ID:s COMMA arg_list:stack  {:
 		RESULT = new Stack();
 		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 		Simbolo simbolo=tabla.buscarGlobal(s);
-				
+		
+		tabla.imprimir();
 	 	if(simbolo==null){
 			error_semantico("La variable "+s+" no se ha declarado");	
 		}else{
