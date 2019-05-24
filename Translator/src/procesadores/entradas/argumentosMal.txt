@@ -1,0 +1,56 @@
+struct $things{
+   real $number;
+   real $number2;
+   integer $number3;
+   string $cadena;
+};
+endStructs
+
+function integer $prueba(integer argumento1){
+	integer $i;
+	$i = $argumento1;
+	return $i;
+}
+
+function real $prueba2(integer $){
+	real $i;
+	real $a;
+	$i = 0;
+	return 4.9;
+}
+
+function bool $prueba3($argumento1){
+	bool $i;
+	real $a;
+	character $b;
+	$i = false
+	return $i;
+}
+
+function bool $prueba4(integer $argumento1, ){
+	bool $i;
+	real $a;
+	character $b;
+	$i = false
+	return $i;
+}
+
+function bool $prueba4(integer $argumento1 integer $argumento2){
+	bool $i;
+	real $a;
+	character $b;
+	$i = false
+	return $i;
+}
+
+function integer $main(){
+	integer $i;
+	real $a;
+	character $b;
+	bool $c;
+	$i = 0;
+	$a = 1.2;
+	$b = 'w';
+	$c = false;
+	return 0;
+}

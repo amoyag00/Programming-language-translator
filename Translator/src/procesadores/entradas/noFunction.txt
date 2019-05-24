@@ -1,0 +1,25 @@
+endStructs
+
+function $prueba(){
+	integer $i;
+	$i = 0;
+	return 0;
+}
+
+function integer $(){
+	integer $i;
+	$i = 0;
+	return 0;
+}
+
+function integer prueba2(){
+	integer $i;
+	$i = 0;
+	return 0;
+}
+
+integer $main(){
+	integer $i;
+	$i = 0;
+	return 0;
+}
