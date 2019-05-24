@@ -358,6 +358,8 @@ public class Parser extends java_cup.runtime.lr_parser {
 
 
 
+
+
 Yylex analizadorLexico;
 
 public static void main(String[] argv){
@@ -383,8 +385,12 @@ public static void main(String[] argv){
 }
 
 public void error_sintactico(Symbol current_token){
-  report_error("Error de sintaxis: linea "+analizadorLexico.linea()+" columna "+analizadorLexico.columna(),current_token);
-  
+  report_error("Error de sintaxis: linea "+analizadorLexico.linea()+" columna "+analizadorLexico.columna(),current_token);    
+}
+
+public void error_semantico(String msg){
+	System.out.println("Error semantico. "+msg+". Linea "+analizadorLexico.linea()+". Columna: "+analizadorLexico.columna());
+	System.exit(-1);
 }
 
 
@@ -421,7 +427,7 @@ class CUP$Parser$actions {
 
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	if( tabla.buscarGlobal("$main")==null ){
-		System.out.println("Error, no se ha declarado una funcion main");
+		error_semantico("No se ha declarado una funcion main");
 	}
 
 
@@ -484,13 +490,13 @@ class CUP$Parser$actions {
 			tabla.insertar(simbolo);
 			simbolo.setTipo(sim.getTipo());
 		}else{
-			System.out.println("Error, la variable "+ aux.nombre+" ya se ha declarado ");
+			error_semantico("La variable "+ aux.nombre+" ya se ha declarado ");
 			 //TODO decir linea y columna
 		}
 		
 	}
 	
-	System.out.println("Las variables "+l.toString()+ " son del tipo "+sim.getTipo());  
+	 
 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("variables",20, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -722,8 +728,8 @@ class CUP$Parser$actions {
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	
 	if(tabla.buscarStructDef(s)!=null){
-		System.out.println("Error, la struct "+ s+" ya se ha definido "+analizadorLexico.linea());
-		System.exit(-1);
+		error_semantico("La struct "+ s+" ya se ha definido ");
+		
 	}
 	
 	
@@ -899,7 +905,7 @@ class CUP$Parser$actions {
 		}
  		
  	}else{
- 		System.out.println("Error, ya se ha declarado la función "+ s);
+ 		error_semantico("Ya se ha declarado la función "+ s);
  	}
 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("NT$1",32, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -927,7 +933,7 @@ class CUP$Parser$actions {
 		
 			TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 			if(!tabla.isAssignable(sim1.getTipo(), sim2.getTipo())){
-				System.out.println("Error, la función "+s+" debe de retornar un valor "+
+				error_semantico("La función "+s+" debe de retornar un valor "+
 				"de tipo "+sim1.getTipo()+" y está retornando un valor de tipo "+sim2.getTipo());
 			}
 			tabla.reset();
@@ -1082,7 +1088,7 @@ class CUP$Parser$actions {
 			Simbolo simbolo=tabla.buscarGlobal(s);
 			
 			if(simbolo==null){
-				System.out.println("Error, la variable "+s+" no se ha declarado");
+				error_semantico("La variable "+s+" no se ha declarado");
 			}else{
 				RESULT= simbolo;
 			}
@@ -1124,12 +1130,12 @@ class CUP$Parser$actions {
 			Simbolo simbolo=tabla.buscarGlobal(s);
 			
 			if(simbolo==null){
-				System.out.println("Error, la variable "+s+" no se ha declarado");
+				System.out.println("La variable "+s+" no se ha declarado");
 			}else{
 				StructDefinition def =simbolo.getStructInstance().getStructDef();
 				String attType= def.getTipoOf(att);
 				if(attType==null){
-					System.out.println("La variable de tipo struct "+s+
+					error_semantico("La variable de tipo struct "+s+
 					" no tiene ningún atributo "+att);
 				}else{
 					Simbolo sim = new Simbolo();
@@ -1160,18 +1166,18 @@ class CUP$Parser$actions {
 				Simbolo function=tabla.buscarGlobal(s);
 				
 	 			if(function==null){
-					System.out.println("Error, la función "+s+" no existe");	
+					error_semantico("La función "+s+" no existe");	
 				}else if(!function.getTipo().equals("FUNCTION")){
-					System.out.println("Error, "+s+" no es una función");
+					error_semantico(s+" no es una función");
 				}else{
 					List<String> expectedTipos = function.getParamTypes();
 					if(expectedTipos.size()!=tipos.size()){
-						System.out.println("Error, la función "+s+" espera "+expectedTipos.size()+
+						error_semantico("La función "+s+" espera "+expectedTipos.size()+
 						" parámetros");
 					}
 					for(int i=tipos.size()-1; i>-1;i--){
 						if(!expectedTipos.get(tipos.size()-1-i).equals(tipos.get(i))){
-							System.out.println("Error, el parametro "+(tipos.size()-1-i)+
+							error_semantico("El parametro "+(tipos.size()-1-i)+
 							"de la funcion "+ s+" ha de ser de tipo "+
 							expectedTipos.get(tipos.size()-i));
 						}
@@ -1201,7 +1207,7 @@ class CUP$Parser$actions {
 			Simbolo simbolo = tabla.buscarGlobal(s);
 			
  			if(simbolo==null){
-				System.out.println("Error, el array "+s+" no existe");	
+				error_semantico("El array "+s+" no existe");	
 			}else{
 				sim.setTipo(simbolo.getTipo());
 				sim.setDimension(simbolo.getDimension() - sim.getDimension());
@@ -1343,18 +1349,18 @@ class CUP$Parser$actions {
 					Simbolo function=tabla.buscarGlobal(s);
 					
 		 			if(function==null){
-						System.out.println("Error, la función "+s+" no existe");	
+						error_semantico("La función "+s+" no existe");	
 					}else if(!function.getTipo().equals("FUNCTION")){
-						System.out.println("Error, "+s+" no es una función");
+						error_semantico(s+" no es una función");
 					}else{
 						List<String> expectedTipos = function.getParamTypes();
 						if(expectedTipos.size()!=tipos.size()){
-							System.out.println("Error, la función "+s+" espera "+expectedTipos.size()+
+							error_semantico("La función "+s+" espera "+expectedTipos.size()+
 							" parámetros");
 						}
 						for(int i=tipos.size()-1; i>-1;i--){
 							if(!expectedTipos.get(tipos.size()-1-i).equals(tipos.get(i))){
-								System.out.println("Error, el parametro "+(tipos.size()-i)+
+								error_semantico("El parametro "+(tipos.size()-i)+
 								" de la funcion "+ s+" ha de ser de tipo "+
 								expectedTipos.get(tipos.size()-1-i));
 							}
@@ -1426,14 +1432,14 @@ class CUP$Parser$actions {
 					Simbolo simbolo=tabla.buscarGlobal(s);
 				
 				if(simbolo==null){
-					System.out.println("Error, la variable "+s+" no existe");
+					error_semantico("La variable "+s+" no existe");
 				}else{
 					String expectedTipo = simbolo.getTipo();
 					if(!tabla.isAssignable(expectedTipo,sim.getTipo())){
-						System.out.println("Error, no se puede asignar una variable de tipo "+
+						System.out.println("No se puede asignar una variable de tipo "+
 						sim.getTipo()+" a una variable de tipo "+expectedTipo);
 					}else if(simbolo.getDimension()!=sim.getDimension()){
-						System.out.println("Error, no se puede asignar una variable de dimensión "+
+						System.out.println("No se puede asignar una variable de dimensión "+
 						sim.getDimension()+" a una variable de dimensión "+simbolo.getDimension());
 					}
 				}
@@ -1459,11 +1465,11 @@ class CUP$Parser$actions {
 					Simbolo simbolo=tabla.buscarGlobal(s);
 				
 				if(simbolo==null){
-					System.out.println("Error, la variable "+s+" no existe");
+					error_semantico("La variable "+s+" no existe");
 				}else{
 					String expectedTipo = simbolo.getTipo();
 					if(!tabla.isAssignable(expectedTipo,sim.getTipo())){
-						System.out.println("Error, no se ha puede asignar una variable de tipo "+
+						System.out.println("No se ha puede asignar una variable de tipo "+
 						sim.getTipo()+" a una variable de tipo "+expectedTipo);
 					}
 				}
@@ -1491,20 +1497,20 @@ class CUP$Parser$actions {
 		   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 		   		Simbolo struct = tabla.buscarGlobal(sStruct);
 		   		if(struct==null){
-		   			System.out.println("Error, no ha creado ninguna struct de nombre "+sStruct);
+		   			error_semantico("No ha creado ninguna struct de nombre "+sStruct);
 		   		}else{
 		   			StructDefinition def = struct.getStructInstance().getStructDef();
 		   			String attTipo = def.getTipoOf(attName);
 		   			if(attTipo==null){
-		   				System.out.println("La struct "+sStruct+" no tiene ningún atributo de nombre "+
+		   				error_semantico("La struct "+sStruct+" no tiene ningún atributo de nombre "+
 		   				attName);
 		   			}else if(struct.getDimension()!=sim.getDimension()){
-						System.out.println("Error, no se puede asignar una variable de dimensión "+
+						error_semantico("No se puede asignar una variable de dimensión "+
 						sim.getDimension()+" a un atributo de una struct de dimensión "+struct.getDimension());
 					}else if(tabla.isAssignable(attTipo, sim.getTipo())){
 						RESULT = attTipo;
 		   			}else{
-		   				System.out.println("Error, no se puede asignar una variable de tipo "+
+		   				error_semantico("No se puede asignar una variable de tipo "+
 		   				sim.getTipo()+" a un atributo de una struct de tipo "+attTipo);
 		   			}
 		   			
@@ -1530,7 +1536,7 @@ class CUP$Parser$actions {
 					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					
 					if( !tabla.isNumeric(sim1.getTipo()) || !tabla.isNumeric(sim2.getTipo()) ){
-						System.out.println("Error, las operaciones matemáticas han de ser"+
+						error_semantico("Las operaciones matemáticas han de ser"+
 						" entre tipos REAL o INT. No se puede operar el tipo "+sim1.getTipo()+
 						" con el tipo "+sim2.getTipo());	
 					}else{
@@ -1668,7 +1674,7 @@ class CUP$Parser$actions {
 					StructDefinition def = tabla.buscarStructDef(structDef);
 					
 					if(def==null){
-						System.out.println("Error, no se ha definido un struct de nombre "+structDef);
+						error_semantico("No se ha definido un struct de nombre "+structDef);
 					}else{
 						Simbolo simbolo = new Simbolo(s, null);
 						simbolo.createStructInstance(def);
@@ -1715,7 +1721,7 @@ class CUP$Parser$actions {
 		Simbolo simbolo=tabla.buscarGlobal(s);
 				
 	 	if(simbolo==null){
-			System.out.println("Error, la variable "+s+" no se ha declarado");	
+			error_semantico("La variable "+s+" no se ha declarado");	
 		}else{
 			RESULT.push(simbolo.getTipo());		
 		}
@@ -1760,7 +1766,7 @@ class CUP$Parser$actions {
 		Simbolo simbolo=tabla.buscarGlobal(s);
 				
 	 	if(simbolo==null){
-			System.out.println("Error, la variable "+s+" no se ha declarado");	
+			error_semantico("La variable "+s+" no se ha declarado");	
 		}else{
 			RESULT.push(simbolo.getTipo());		
 		}

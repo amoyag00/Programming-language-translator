@@ -30,7 +30,7 @@ function real $main(){
    
    $thing.$number = 2.0;
    $thing.$number2 = 4.0;
-   $thing.$number3 = 5;
+   $thing.$number3 = 5.0;
 	$a = $a+$a;
 	$d = -$a;
    print("Escribe un número");
