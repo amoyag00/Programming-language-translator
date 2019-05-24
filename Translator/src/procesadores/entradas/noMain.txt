@@ -1,0 +1,26 @@
+integer $a;
+real $b;
+character $c;
+bool $d;
+integer $l [2];
+
+struct $e {
+	integer $a;
+	real $q;
+	character $c;
+	bool $z;
+	real $l [4][1];
+};
+
+struct $p {
+	integer $r;
+	real $q;
+	real $l [4][1][2];
+};
+endStructs
+
+function integer $prueba(integer $argumento1){
+	integer $i;
+	$i = $argumento1;
+	return $i;
+}
