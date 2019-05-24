@@ -1,0 +1,14 @@
+
+endStructs
+
+function integer $main(){
+	integer $i;
+	$i = 0;
+	return 0;
+}
+
+function real $prueba(integer $argumento){
+	integer $i;
+	$i = $argumento;
+	return $i;
+}

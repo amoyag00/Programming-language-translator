@@ -1,0 +1,26 @@
+
+endStructs
+
+function integer $main(){
+	integer $i;
+	$i = 0;
+	return 0;
+}
+
+function real $prueba(integer $argumeto){
+	integer $i;
+	$i = 0;
+	return 1.2;
+}
+
+function string $prueba2(integer $argumeto, real $argumento2){
+	integer $i;
+	$i = 0;
+	return "hola";
+}
+
+function string $prueba3(integer $argumeto, real $argumento2, string $argumento3){
+	integer $i;
+	$i = 0;
+	return "hola";
+}
