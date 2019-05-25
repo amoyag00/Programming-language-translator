@@ -54,9 +54,10 @@ function real $main(){
    $thing.$number3 = 5;
 	$a = $a+$a;
 	$d = -$a;
+	$d = $a^$b+(5^$thing.$number2);
    print("Escribe un número");
 
-   read(real, $thing.$number3);
+   read($a);
 
    if($thing.$number3 < $thing.$number){
       $thing.$number = $thing.$number + $thing.$number3; 
