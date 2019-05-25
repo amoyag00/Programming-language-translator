@@ -10,7 +10,10 @@ public class JavaGenerator {
 	private String filename;
 
 	public JavaGenerator() {
-		this.code = "package procesadores;\npublic class Main {\n";
+		this.code = "package procesadores;\n"
+				+ "import java.util.Scanner;\n"+
+				"import java.util.Locale;\n"+
+				"public class Main {\n";
 	}
 
 	public void generate() {

@@ -201,4 +201,35 @@ public class TablaSimbolos {
 		return initialValue;
 		
 	}
+	
+	public String getReadCode(Simbolo simbolo) {
+		String code ="Scanner in = new Scanner(System.in).useLocale(Locale.US);\n"+
+				simbolo.getNombre()+" = ";
+		String tipo = simbolo.getTipo();
+		
+		switch(tipo) {
+			case "INT":
+				code+="in.nextInt()";
+				break;
+	
+			case "REAL":
+				code += "in.nextDouble()";
+				break;
+	
+			case "STRING":
+				code += "in.nextLine()";
+				break;
+	
+			case "CHAR":
+				code += "in.next().charAt(0)";
+				break;
+	
+			case "BOOL":
+				code += "in.nextBoolean()";
+				break;
+
+		}
+				
+		return code;
+	}
 }
