@@ -1,0 +1,22 @@
+struct $things{
+   real $number;
+   real $number2;
+   integer $number3;
+   string $cadena;
+};
+endStructs
+
+function integer $main(){
+	integer $i;
+	struct $things $thing;
+	real $a;
+	character $b;
+	string $c;
+	$i = 0;
+	read($i);
+	read($a);
+	read($b);
+	read($c);
+	read($thing.$number2);
+	return 0;
+}

@@ -1,0 +1,12 @@
+endStructs
+
+function integer $main(){
+	integer $i;
+	real $a;
+	character $b;
+	string $c;
+	$i = 0;
+	read($);
+	read(c);
+	return 0;
+}

@@ -1,0 +1,19 @@
+endStructs
+
+function integer $main(){
+	integer $i;
+	real $a;
+	character $b;
+	string $c;
+	bool $v;
+	$i = 0;
+	$v = true;
+	$a = 3.2;
+	$b = 's';
+	print;
+	print(3);
+	print(i);
+	print($);
+	print($v;
+	return 0;
+}
