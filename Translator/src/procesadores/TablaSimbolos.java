@@ -244,7 +244,9 @@ public class TablaSimbolos {
 	 * @param def
 	 */
 	public void check(FunctionDef def) {
+		//System.out.println("Before: "+uncheckedCalls.size());
 		uncheckedCalls.entrySet().removeIf(entry -> entry.getValue().equals(def));
+		//System.out.println("After: "+uncheckedCalls.size());
 	}
 
 	public Map<String, FunctionDef> getUncheckedCalls() {

@@ -87,11 +87,11 @@ program ::= declarations:sim1 END_STRUCT functions:sim2 {:
 	} 
 		
 	Map<String, FunctionDef> uncheckedCalls = tabla.getUncheckedCalls();
-	if(uncheckedCalls.size()>1){
+	if(uncheckedCalls.size()>0){
 	
 		for (Map.Entry<String, FunctionDef> entry : uncheckedCalls.entrySet()) {
 			FunctionDef def = entry.getValue();
-		    error_semantico("No se ha declarado la funcion "+entry.getKey()+
+		    System.out.println("Error semantico. No se ha declarado la funcion "+entry.getKey()+
 		    ". Linea "+def.getLine()+" Columna "+def.getCol());
 		}
 	}
@@ -649,8 +649,11 @@ id ::= ID:s {:
 					Simbolo aux = (Simbolo)tipos.get(i);
 					list+=aux.getCode()+", ";
 				}
-				Simbolo lastSymbol =(Simbolo)tipos.get(0);
-				list+=lastSymbol.getCode();
+				if(tipos.size()>0){
+					Simbolo lastSymbol =(Simbolo)tipos.get(0);
+					list+=lastSymbol.getCode();
+				}
+				
 				
 				sim.setCode(s+"("+list+")");
 				
@@ -761,6 +764,7 @@ expression ::= assign:sim {:
 	RESULT = sim;
 :} | ID:s OPEN_PAR arg_list:tipos CLOSE_PAR  {:
 				
+				Simbolo sim = new Simbolo();
 				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 				Simbolo function=tabla.buscarGlobal(s);
 				
@@ -775,7 +779,7 @@ expression ::= assign:sim {:
 					def.setLine(analizadorLexico.linea());
 					def.setCol(analizadorLexico.columna());
 					tabla.addUncheckedCall(def);
-						
+					
 				}else if(!function.getTipo().equals("FUNCTION")){
 					error_semantico(s+" no es una función");
 				}else{
@@ -788,13 +792,14 @@ expression ::= assign:sim {:
 						Simbolo simb = (Simbolo)tipos.get(i);
 						if(!expectedTipos.get(tipos.size()-1-i).equals(simb.getTipo())){
 							error_semantico("El parametro "+(tipos.size()-1-i)+
-							"de la funcion "+ s+" ha de ser de tipo "+
-							expectedTipos.get(tipos.size()-i));
+							" de la funcion "+ s+" ha de ser de tipo "+
+							expectedTipos.get(tipos.size()-1-i));
 						}
 					}
+					sim.setTipo(function.getTipoRetorno());
 				}
-				Simbolo sim = new Simbolo();
-				sim.setTipo(function.getTipoRetorno());
+				
+				
 				RESULT = sim;
 				
 				//Code
@@ -804,8 +809,11 @@ expression ::= assign:sim {:
 					Simbolo aux = (Simbolo)tipos.get(i);
 					list+=aux.getCode()+", ";
 				}
-				Simbolo lastSymbol =(Simbolo)tipos.get(0);
-				list+=lastSymbol.getCode();
+				if(tipos.size()>0){
+					Simbolo lastSymbol =(Simbolo)tipos.get(0);
+					list+=lastSymbol.getCode();
+				}
+				
 				
 				sim.setCode(s+"("+list+")");
 :} | create_struct:sim  {: 
