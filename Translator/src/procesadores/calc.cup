@@ -3,8 +3,6 @@ import java_cup.runtime.*;
 import java.io.*;
 import java.util.Stack;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Locale;
 
 parser code {:
 
@@ -68,7 +66,7 @@ non terminal program ;
 /* No terminales con atributo*/
 /*non terminal  Integer expr, asignacion;*/
 non terminal Stack   list, structvars, params,arg_list;
-non terminal Simbolo read, logic_operator, condition, validate_operator,print,loop, if, else, conditions,create_struct, operator,instructions, expression, assign,function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
+non terminal Simbolo logic_operator, condition, validate_operator,print,loop, if, else, conditions,create_struct, operator,instructions, expression, assign,function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
 
 /*Precedencias*/
 precedence left PLUS,MINUS;
@@ -538,16 +536,12 @@ conditions ::= condition:sim1 {:
 	//Code
 	RESULT = sim1;
 	
-:} | condition:sim1 logic_operator conditions:sim2 {: 
+:} | condition:sim1 logic_operator:simOP conditions:sim2 {: 
 
 	//Code
 	RESULT=sim2;
-	sim2.setCode(sim1.getCode()+sim2.getCode());
+	sim2.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
 	
-:} | OPEN_PAR condition:sim CLOSE_PAR{:
-	//Code
-	RESULT=sim;
-	sim.setCode("("+sim.getCode()+")");
 :};
 
 condition ::= id:sim1 validate_operator:sim2 id:sim3 {: 
@@ -786,10 +780,11 @@ expression ::= assign:sim {:
 	//Code 
 	RESULT = sim;
 
-:} | read:sim {: 
-
-		RESULT = sim;
-	
+:} | READ OPEN_PAR type COMMA id CLOSE_PAR {: 
+	//Code
+	//TODO
+	RESULT= new Simbolo();
+	RESULT.setCode("");
 :} | PRINT OPEN_PAR print:sim1 CLOSE_PAR {:
  	
  	//Code
@@ -808,21 +803,6 @@ expression ::= assign:sim {:
 	RESULT = sim;
 	
 :};
-
-read ::= READ OPEN_PAR ID:s CLOSE_PAR{:
-TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
-	Simbolo simbolo=tabla.buscarGlobal(s);
-			
-	if(simbolo==null){
-		error_semantico("La variable "+s+" no existe");
-	}
-	
-	//Code
-	
-	RESULT= new Simbolo();
-	RESULT.setCode(tabla.getReadCode(simbolo));
-	
-:} ;
  
 assign ::= ID:s ASSIGN numeric_expr:sim {: 
 				
@@ -937,14 +917,7 @@ numeric_expr ::= numeric_expr:sim1 operator:simOP numeric_expr:sim2 {:
 					
 					//Code
 					//TODO pow
-					if(simOP.getCode().equals("^")){
-						String code ="Math.pow(";
-						code +=sim1.getCode()+", "+sim2.getCode()+")";
-						RESULT.setCode(code);
-					}else{
-						RESULT.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
-					}
-					
+					RESULT.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
 					
 				 :} | id:sim {: 
 				 

@@ -62,8 +62,8 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 "!=" { return new Symbol(sym.NOT_EQUAL); }
 "<=" { return new Symbol(sym.LESS_EQUAL); }
 ">=" { return new Symbol(sym.GREATER_EQUAL); }
-"&" { return new Symbol(sym.AND); }
-"|" { return new Symbol(sym.OR); }
+"&&" { return new Symbol(sym.AND); }
+"||" { return new Symbol(sym.OR); }
 "+" { return new Symbol(sym.PLUS); }
 "-" { return new Symbol(sym.MINUS); }
 "/" { return new Symbol(sym.DIV); }
