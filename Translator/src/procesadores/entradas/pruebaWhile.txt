@@ -42,22 +42,12 @@ function real $main(){
     $thing.$number2 = 4.0;
     print("Escribe un número");
 
-    if($a < $b){
-    	$a = $a + $c;
-    }else{
-      	print("hola");
+    iter($a == $b) {
+    	$c = $a + $b;
     };
     
-    if($b > $param1) {
-		$param1 = 3.4 + 2.1;    
-    }
-    else{ 
-    	if($param1 == $param2) {
-    		$param1 = 3.1;
-    	}
-    	else{
-    		print("hola");
-    	};
+    iter($param1 >= $param2) {
+    	$c = $a + $b;
     };
     
 	return $thing.$number2;
