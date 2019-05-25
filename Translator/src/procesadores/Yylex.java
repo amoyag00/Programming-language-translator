@@ -193,9 +193,9 @@ class Yylex implements java_cup.runtime.Scanner {
   private static final String ZZ_ACTION_PACKED_0 =
     "\1\0\1\1\1\2\1\3\1\4\1\5\6\1\1\6"+
     "\1\7\1\10\1\11\1\12\1\13\3\1\1\14\1\15"+
-    "\1\16\1\1\1\17\1\20\1\21\1\22\1\23\1\24"+
-    "\1\25\1\26\3\1\2\27\1\2\1\0\1\30\12\0"+
-    "\1\31\1\0\1\32\1\33\1\34\1\35\2\0\1\36"+
+    "\1\16\3\1\1\17\1\20\1\21\1\22\1\23\1\24"+
+    "\3\1\2\25\1\2\1\0\1\26\12\0\1\27\1\0"+
+    "\1\30\1\31\1\32\1\33\1\34\1\35\2\0\1\36"+
     "\2\0\1\37\1\0\2\2\20\0\1\40\1\0\1\2"+
     "\2\0\1\41\1\0\1\42\1\43\2\0\1\44\2\0"+
     "\1\45\1\0\1\46\1\0\1\36\7\0\1\47\1\0"+
@@ -203,7 +203,7 @@ class Yylex implements java_cup.runtime.Scanner {
     "\1\56\1\0\1\57";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[128];
+    int [] result = new int[130];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -231,22 +231,23 @@ class Yylex implements java_cup.runtime.Scanner {
     "\0\0\0\66\0\154\0\242\0\66\0\66\0\330\0\u010e"+
     "\0\u0144\0\u017a\0\u01b0\0\u01e6\0\66\0\66\0\66\0\66"+
     "\0\66\0\66\0\u021c\0\u0252\0\u0288\0\u02be\0\u02f4\0\u032a"+
-    "\0\u0360\0\66\0\66\0\u0396\0\u0396\0\66\0\66\0\66"+
-    "\0\u03cc\0\u0402\0\u0438\0\u046e\0\u04a4\0\u04da\0\u0510\0\u0546"+
-    "\0\u057c\0\u05b2\0\u05e8\0\u061e\0\u0654\0\u068a\0\u06c0\0\u06f6"+
-    "\0\u072c\0\u0762\0\u0798\0\66\0\u07ce\0\66\0\66\0\66"+
-    "\0\66\0\u03cc\0\u0396\0\u0804\0\u083a\0\u0438\0\u0438\0\u0870"+
-    "\0\u08a6\0\66\0\u08dc\0\u0912\0\u0948\0\u097e\0\u09b4\0\u09ea"+
+    "\0\u0360\0\u0396\0\u03cc\0\u0402\0\u0402\0\66\0\66\0\66"+
+    "\0\u0438\0\u046e\0\u04a4\0\u04da\0\u0510\0\u0546\0\u057c\0\u05b2"+
+    "\0\u05e8\0\u061e\0\u0654\0\u068a\0\u06c0\0\u06f6\0\u072c\0\u0762"+
+    "\0\u0798\0\u07ce\0\u0804\0\66\0\u083a\0\66\0\66\0\66"+
+    "\0\66\0\66\0\66\0\u0438\0\u0402\0\u0870\0\u08a6\0\u04a4"+
+    "\0\u04a4\0\u08dc\0\u0912\0\66\0\u0948\0\u097e\0\u09b4\0\u09ea"+
     "\0\u0a20\0\u0a56\0\u0a8c\0\u0ac2\0\u0af8\0\u0b2e\0\u0b64\0\u0b9a"+
-    "\0\u0bd0\0\u0c06\0\66\0\u0c3c\0\u08dc\0\u0c72\0\u0ca8\0\66"+
-    "\0\u0cde\0\66\0\66\0\u0d14\0\u0d4a\0\66\0\u0d80\0\u0db6"+
-    "\0\66\0\u0dec\0\66\0\u0e22\0\u0e22\0\u0e58\0\u0e8e\0\u0ec4"+
-    "\0\u0efa\0\u0f30\0\u0f66\0\u0f9c\0\66\0\u0fd2\0\66\0\66"+
-    "\0\66\0\66\0\u1008\0\u103e\0\u1074\0\u10aa\0\u10e0\0\u1116"+
-    "\0\u114c\0\66\0\u1182\0\u11b8\0\66\0\66\0\u11ee\0\66";
+    "\0\u0bd0\0\u0c06\0\u0c3c\0\u0c72\0\66\0\u0ca8\0\u0948\0\u0cde"+
+    "\0\u0d14\0\66\0\u0d4a\0\66\0\66\0\u0d80\0\u0db6\0\66"+
+    "\0\u0dec\0\u0e22\0\66\0\u0e58\0\66\0\u0e8e\0\u0e8e\0\u0ec4"+
+    "\0\u0efa\0\u0f30\0\u0f66\0\u0f9c\0\u0fd2\0\u1008\0\66\0\u103e"+
+    "\0\66\0\66\0\66\0\66\0\u1074\0\u10aa\0\u10e0\0\u1116"+
+    "\0\u114c\0\u1182\0\u11b8\0\66\0\u11ee\0\u1224\0\66\0\66"+
+    "\0\u125a\0\66";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[128];
+    int [] result = new int[130];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -280,33 +281,33 @@ class Yylex implements java_cup.runtime.Scanner {
     "\105\0\1\55\46\0\1\56\15\0\1\57\44\0\1\60"+
     "\17\0\1\61\43\0\1\62\4\0\1\63\10\0\1\64"+
     "\67\0\1\65\73\0\1\66\65\0\1\67\65\0\1\70"+
-    "\65\0\1\71\100\0\1\72\5\0\1\73\65\0\1\74"+
-    "\17\0\1\75\51\0\1\76\2\0\53\76\1\77\2\0"+
-    "\5\76\1\100\2\0\54\100\2\0\5\100\54\0\1\72"+
-    "\5\0\1\45\1\0\2\46\62\0\1\46\1\0\2\46"+
-    "\1\47\1\101\1\102\63\47\5\103\1\104\60\103\7\0"+
-    "\14\51\6\0\10\51\14\0\1\51\2\0\1\51\1\0"+
-    "\2\51\1\0\1\51\14\0\1\105\66\0\1\106\63\0"+
-    "\1\107\21\0\1\110\65\0\1\111\51\0\1\112\56\0"+
-    "\1\113\73\0\1\114\103\0\1\115\46\0\1\116\61\0"+
-    "\1\117\105\0\1\120\51\0\1\121\42\0\1\74\1\121"+
-    "\34\0\1\122\114\0\1\123\6\0\1\102\63\0\5\103"+
-    "\1\124\64\103\1\125\1\124\60\103\15\0\1\126\14\0"+
-    "\1\127\52\0\1\130\63\0\1\131\71\0\1\132\14\0"+
-    "\1\133\43\0\1\134\73\0\1\135\62\0\1\136\64\0"+
-    "\1\137\61\0\1\140\67\0\1\141\70\0\1\142\104\0"+
-    "\1\143\76\0\2\144\11\0\1\145\23\0\1\146\45\0"+
-    "\4\103\1\102\1\124\60\103\16\0\1\147\67\0\1\150"+
-    "\61\0\1\151\106\0\1\152\43\0\1\153\65\0\1\154"+
-    "\71\0\1\155\102\0\1\156\113\0\1\145\16\0\1\157"+
-    "\65\0\1\160\106\0\1\161\51\0\1\162\63\0\1\163"+
-    "\63\0\1\164\103\0\1\165\52\0\1\166\61\0\1\167"+
-    "\67\0\1\170\103\0\1\171\46\0\1\172\70\0\1\173"+
-    "\64\0\1\174\67\0\1\175\61\0\1\176\64\0\1\177"+
-    "\64\0\1\200\53\0";
+    "\65\0\1\71\71\0\1\72\66\0\1\73\73\0\1\74"+
+    "\5\0\1\75\65\0\1\76\17\0\1\77\51\0\1\100"+
+    "\2\0\53\100\1\101\2\0\5\100\1\102\2\0\54\102"+
+    "\2\0\5\102\54\0\1\74\5\0\1\45\1\0\2\46"+
+    "\62\0\1\46\1\0\2\46\1\47\1\103\1\104\63\47"+
+    "\5\105\1\106\60\105\7\0\14\51\6\0\10\51\14\0"+
+    "\1\51\2\0\1\51\1\0\2\51\1\0\1\51\14\0"+
+    "\1\107\66\0\1\110\63\0\1\111\21\0\1\112\65\0"+
+    "\1\113\51\0\1\114\56\0\1\115\73\0\1\116\103\0"+
+    "\1\117\46\0\1\120\61\0\1\121\105\0\1\122\51\0"+
+    "\1\123\42\0\1\76\1\123\34\0\1\124\114\0\1\125"+
+    "\6\0\1\104\63\0\5\105\1\126\64\105\1\127\1\126"+
+    "\60\105\15\0\1\130\14\0\1\131\52\0\1\132\63\0"+
+    "\1\133\71\0\1\134\14\0\1\135\43\0\1\136\73\0"+
+    "\1\137\62\0\1\140\64\0\1\141\61\0\1\142\67\0"+
+    "\1\143\70\0\1\144\104\0\1\145\76\0\2\146\11\0"+
+    "\1\147\23\0\1\150\45\0\4\105\1\104\1\126\60\105"+
+    "\16\0\1\151\67\0\1\152\61\0\1\153\106\0\1\154"+
+    "\43\0\1\155\65\0\1\156\71\0\1\157\102\0\1\160"+
+    "\113\0\1\147\16\0\1\161\65\0\1\162\106\0\1\163"+
+    "\51\0\1\164\63\0\1\165\63\0\1\166\103\0\1\167"+
+    "\52\0\1\170\61\0\1\171\67\0\1\172\103\0\1\173"+
+    "\46\0\1\174\70\0\1\175\64\0\1\176\67\0\1\177"+
+    "\61\0\1\200\64\0\1\201\64\0\1\202\53\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[4644];
+    int [] result = new int[4752];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -344,16 +345,15 @@ class Yylex implements java_cup.runtime.Scanner {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\1\11\2\1\2\11\6\1\6\11\7\1\2\11"+
-    "\2\1\3\11\7\1\1\0\1\1\12\0\1\11\1\0"+
-    "\4\11\2\0\1\1\2\0\1\1\1\0\1\1\1\11"+
-    "\20\0\1\11\1\0\1\1\2\0\1\11\1\0\2\11"+
-    "\2\0\1\11\2\0\1\11\1\0\1\11\1\0\1\1"+
-    "\7\0\1\11\1\0\4\11\7\0\1\11\2\0\2\11"+
-    "\1\0\1\11";
+    "\1\0\1\11\2\1\2\11\6\1\6\11\13\1\3\11"+
+    "\7\1\1\0\1\1\12\0\1\11\1\0\6\11\2\0"+
+    "\1\1\2\0\1\1\1\0\1\1\1\11\20\0\1\11"+
+    "\1\0\1\1\2\0\1\11\1\0\2\11\2\0\1\11"+
+    "\2\0\1\11\1\0\1\11\1\0\1\1\7\0\1\11"+
+    "\1\0\4\11\7\0\1\11\2\0\2\11\1\0\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[128];
+    int [] result = new int[130];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -429,6 +429,7 @@ class Yylex implements java_cup.runtime.Scanner {
   private int zzFinalHighSurrogate = 0;
 
   /* user code: */
+ boolean debug;
  private TablaSimbolos tabla;
  public Yylex(Reader in, TablaSimbolos t){
  this(in);
@@ -437,8 +438,12 @@ class Yylex implements java_cup.runtime.Scanner {
  public TablaSimbolos getTabla(){
  	return tabla;
  }
+ public void setDebugMode(boolean flag){
+ 	this.debug = flag;
+ }
  public int linea(){return yyline+1;}
  public int columna(){ return yycolumn+1;}
+ public void printRef(){ System.out.println( ". Linea:"+linea()+" Col:"+columna());}
  
 
 
@@ -826,7 +831,7 @@ class Yylex implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
-            { System.out.println("Error en lexico."+yytext()+"-");
+            { System.out.println("Error léxico."+yytext()+"-");
             } 
             // fall through
           case 48: break;
@@ -836,227 +841,406 @@ class Yylex implements java_cup.runtime.Scanner {
             // fall through
           case 49: break;
           case 3: 
-            { return new Symbol(sym.DIV);
+            { if(debug){
+	System.out.print("DIV");
+	printRef();
+}return new Symbol(sym.DIV);
             } 
             // fall through
           case 50: break;
           case 4: 
-            { return new Symbol(sym.MULT);
+            { if(debug){
+	System.out.print("MULT");
+	printRef();
+}
+return new Symbol(sym.MULT);
             } 
             // fall through
           case 51: break;
           case 5: 
-            { System.out.println("END_INSTR");return new Symbol(sym.END_INSTR);
+            { if(debug){
+	System.out.print("END_INSTR");
+	printRef();
+}
+return new Symbol(sym.END_INSTR);
             } 
             // fall through
           case 52: break;
           case 6: 
-            { return new Symbol(sym.INIT_BLOCK);
+            { if(debug){
+	System.out.print("INIT_BLOCK");
+	printRef();
+}
+return new Symbol(sym.INIT_BLOCK);
             } 
             // fall through
           case 53: break;
           case 7: 
-            { return new Symbol(sym.END_BLOCK);
+            { if(debug){
+	System.out.print("END_BLOCK");
+	printRef();
+}
+return new Symbol(sym.END_BLOCK);
             } 
             // fall through
           case 54: break;
           case 8: 
-            { return new Symbol(sym.OPEN_PAR);
+            { if(debug){
+	System.out.print("OPEN_PAR");
+	printRef();
+}
+return new Symbol(sym.OPEN_PAR);
             } 
             // fall through
           case 55: break;
           case 9: 
-            { return new Symbol(sym.CLOSE_PAR);
+            { if(debug){
+	System.out.print("CLOSE_PAR");
+	printRef();
+}
+return new Symbol(sym.CLOSE_PAR);
             } 
             // fall through
           case 56: break;
           case 10: 
-            { return new Symbol(sym.OPEN_BRACKETS);
+            { if(debug){
+	System.out.print("OPEN_BRACKETS");
+	printRef();
+}
+return new Symbol(sym.OPEN_BRACKETS);
             } 
             // fall through
           case 57: break;
           case 11: 
-            { return new Symbol(sym.CLOSE_BRACKETS);
+            { if(debug){
+	System.out.print("CLOSE_BRACKETS");
+	printRef();
+}
+return new Symbol(sym.CLOSE_BRACKETS);
             } 
             // fall through
           case 58: break;
           case 12: 
-            { System.out.println("ASSIGN");return new Symbol(sym.ASSIGN);
+            { if(debug){
+	System.out.print("ASSIGN");
+	printRef();
+}
+return new Symbol(sym.ASSIGN);
             } 
             // fall through
           case 59: break;
           case 13: 
-            { System.out.println("LESS");return new Symbol(sym.LESS);
+            { if(debug){
+	System.out.print("LESS");
+	printRef();
+}
+return new Symbol(sym.LESS);
             } 
             // fall through
           case 60: break;
           case 14: 
-            { return new Symbol(sym.GREATER);
+            { if(debug){
+	System.out.print("GREATER");
+	printRef();
+}
+return new Symbol(sym.GREATER);
             } 
             // fall through
           case 61: break;
           case 15: 
-            { return new Symbol(sym.AND);
+            { if(debug){
+	System.out.print("PLUS");
+	printRef();
+}
+return new Symbol(sym.PLUS);
             } 
             // fall through
           case 62: break;
           case 16: 
-            { return new Symbol(sym.OR);
+            { if(debug){
+	System.out.print("MINUS");
+	printRef();
+}
+return new Symbol(sym.MINUS);
             } 
             // fall through
           case 63: break;
           case 17: 
-            { return new Symbol(sym.PLUS);
+            { if(debug){
+	System.out.print("MOD");
+	printRef();
+}
+ return new Symbol(sym.MOD);
             } 
             // fall through
           case 64: break;
           case 18: 
-            { return new Symbol(sym.MINUS);
+            { if(debug){
+	System.out.print("POW");
+	printRef();
+}
+return new Symbol(sym.POW);
             } 
             // fall through
           case 65: break;
           case 19: 
-            { return new Symbol(sym.MOD);
+            { if(debug){
+	System.out.print("COMMA");
+	printRef();
+}
+return new Symbol(sym.COMMA);
             } 
             // fall through
           case 66: break;
           case 20: 
-            { return new Symbol(sym.POW);
+            { if(debug){
+	System.out.print("POINT");
+	printRef();
+}
+return new Symbol(sym.POINT);
             } 
             // fall through
           case 67: break;
           case 21: 
-            { return new Symbol(sym.COMMA);
+            { if(debug){
+	System.out.print("NUM_INT");
+	printRef();
+}
+return new Symbol(sym.NUM_INT, new Integer(yytext()));
             } 
             // fall through
           case 68: break;
           case 22: 
-            { return new Symbol(sym.POINT);
+            { if(debug){
+	System.out.print("ID: "+yytext());
+	printRef();
+}
+return new Symbol(sym.ID, yytext());
             } 
             // fall through
           case 69: break;
           case 23: 
-            { return new Symbol(sym.NUM_INT, new Integer(yytext()));
+            { if(debug){
+	System.out.print("IF");
+	printRef();
+}
+return new Symbol(sym.IF);
             } 
             // fall through
           case 70: break;
           case 24: 
-            { System.out.println("ID: "+yytext()); return new Symbol(sym.ID, yytext());
+            { if(debug){
+	System.out.print("EQUAL");
+	printRef();
+}
+return new Symbol(sym.EQUAL);
             } 
             // fall through
           case 71: break;
           case 25: 
-            { System.out.println("IF"); return new Symbol(sym.IF);
+            { if(debug){
+	System.out.print("LESS_EQUAL");
+	printRef();
+}
+return new Symbol(sym.LESS_EQUAL);
             } 
             // fall through
           case 72: break;
           case 26: 
-            { return new Symbol(sym.EQUAL);
+            { if(debug){
+	System.out.print("GREATER_EQUAL");
+	printRef();
+}
+return new Symbol(sym.GREATER_EQUAL);
             } 
             // fall through
           case 73: break;
           case 27: 
-            { return new Symbol(sym.LESS_EQUAL);
+            { if(debug){
+	System.out.print("NOT_EQUAL");
+	printRef();
+}
+return new Symbol(sym.NOT_EQUAL);
             } 
             // fall through
           case 74: break;
           case 28: 
-            { return new Symbol(sym.GREATER_EQUAL);
+            { if(debug){
+	System.out.print("AND");
+	printRef();
+}
+return new Symbol(sym.AND);
             } 
             // fall through
           case 75: break;
           case 29: 
-            { return new Symbol(sym.NOT_EQUAL);
+            { if(debug){
+	System.out.print("OR");
+	printRef();
+}
+return new Symbol(sym.OR);
             } 
             // fall through
           case 76: break;
           case 30: 
-            { System.out.println("REAL");return new Symbol(sym.NUM_REAL, new Double(yytext()));
+            { if(debug){
+	System.out.print("REAL");
+	printRef();
+}
+return new Symbol(sym.NUM_REAL, new Double(yytext()));
             } 
             // fall through
           case 77: break;
           case 31: 
-            { System.out.println("string literal");return new Symbol(sym.STRING_LITERAL, new String(yytext()));
+            { if(debug){
+	System.out.print("SRING_LITERAL");
+	printRef();
+}
+return new Symbol(sym.STRING_LITERAL, new String(yytext()));
             } 
             // fall through
           case 78: break;
           case 32: 
-            { return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(1)));
+            { if(debug){
+	System.out.print("CHAR_LITERAL");
+	printRef();
+}
+return new Symbol(sym.CHAR_LITERAL, new Character(yytext().charAt(1)));
             } 
             // fall through
           case 79: break;
           case 33: 
-            { return new Symbol(sym.TRUE);
+            { if(debug){
+	System.out.print("TRUE");
+	printRef();
+}
+return new Symbol(sym.TRUE);
             } 
             // fall through
           case 80: break;
           case 34: 
-            { return new Symbol(sym.READ);
+            { if(debug){
+	System.out.print("READ");
+	printRef();
+}
+return new Symbol(sym.READ);
             } 
             // fall through
           case 81: break;
           case 35: 
-            { return new Symbol(sym.REAL);
+            { if(debug){
+	System.out.print("REAL");
+	printRef();
+}
+return new Symbol(sym.REAL);
             } 
             // fall through
           case 82: break;
           case 36: 
-            { System.out.println("ELSE"); return new Symbol(sym.ELSE);
+            { if(debug){
+	System.out.print("ELSE");
+	printRef();
+}
+return new Symbol(sym.ELSE);
             } 
             // fall through
           case 83: break;
           case 37: 
-            { return new Symbol(sym.WHILE);
+            { if(debug){
+	System.out.print("WHILE");
+	printRef();
+}
+return new Symbol(sym.WHILE);
             } 
             // fall through
           case 84: break;
           case 38: 
-            { return new Symbol(sym.BOOL);
+            { if(debug){
+	System.out.print("BOOL");
+	printRef();
+}
+return new Symbol(sym.BOOL);
             } 
             // fall through
           case 85: break;
           case 39: 
-            { return new Symbol(sym.FALSE);
+            { if(debug){
+	System.out.print("FALSE");
+	printRef();
+}
+return new Symbol(sym.FALSE);
             } 
             // fall through
           case 86: break;
           case 40: 
-            { return new Symbol(sym.PRINT);
+            { if(debug){
+	System.out.print("PRINT");
+	printRef();
+}
+return new Symbol(sym.PRINT);
             } 
             // fall through
           case 87: break;
           case 41: 
-            { return new Symbol(sym.STRUCT);
+            { if(debug){
+	System.out.print("STRUCT");
+	printRef();
+}
+return new Symbol(sym.STRUCT);
             } 
             // fall through
           case 88: break;
           case 42: 
-            { return new Symbol(sym.STRING);
+            { if(debug){
+	System.out.print("STRING");
+	printRef();
+}
+return new Symbol(sym.STRING);
             } 
             // fall through
           case 89: break;
           case 43: 
-            { return new Symbol(sym.RETURN);
+            { if(debug){
+	System.out.print("RETURN");
+	printRef();
+}
+return new Symbol(sym.RETURN);
             } 
             // fall through
           case 90: break;
           case 44: 
-            { return new Symbol(sym.INT);
+            { if(debug){
+	System.out.print("INT");
+	printRef();
+}
+return new Symbol(sym.INT);
             } 
             // fall through
           case 91: break;
           case 45: 
-            { return new Symbol(sym.FUNCTION);
+            { if(debug){
+	System.out.print("FUNCTION");
+	printRef();
+}
+return new Symbol(sym.FUNCTION);
             } 
             // fall through
           case 92: break;
           case 46: 
-            { return new Symbol(sym.CHAR);
+            { if(debug){
+	System.out.print("CHAR");
+	printRef();
+}
+return new Symbol(sym.CHAR);
             } 
             // fall through
           case 93: break;
           case 47: 
-            { return new Symbol(sym.END_STRUCT);
+            { if(debug){
+	System.out.print("END_STRUCT");
+	printRef();
+}
+return new Symbol(sym.END_STRUCT);
             } 
             // fall through
           case 94: break;

@@ -3,25 +3,24 @@ import java_cup.runtime.*;
 import java.io.*;
 import java.util.Stack;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Locale;
+import java.util.Map;
 
 parser code {:
 
 
 Yylex analizadorLexico;
 String filename;
-
 public static void main(String[] argv){
-	if (argv.length == 0) {
-		      System.out.println("Uso : java Parser  <inputfile)>");
-		    }
-	else{
+	if (argv.length <2) {
+		      System.out.println("Uso : java Parser  <inputfile> <debugMode>");
+	}else{
 	try {
+		
 		TablaSimbolos tabla = new TablaSimbolos();
 		java.io.FileInputStream stream = new java.io.FileInputStream(argv[0]);
 	    java.io.Reader reader = new java.io.InputStreamReader(stream);
 		Yylex analizadorLexico= new Yylex(reader,tabla);
+		analizadorLexico.setDebugMode(Boolean.parseBoolean(argv[1]));
 		Parser parserObj = new Parser();
 		parserObj.filename = argv[0];
 		parserObj.analizadorLexico=analizadorLexico;
@@ -70,7 +69,7 @@ non terminal program ;
 /* No terminales con atributo*/
 /*non terminal  Integer expr, asignacion;*/
 non terminal Stack   list, structvars, params,arg_list;
-non terminal Simbolo read, logic_operator, condition, validate_operator,print,loop, if, else, conditions,create_struct, operator,instructions, expression, assign,function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
+non terminal Simbolo logic_operator, condition, validate_operator,print,loop, if, else, conditions,create_struct, operator,instructions, expression, assign,function,structs,struct, functions, literal, numeric_expr, id, returntype, index, type, array, variables, declarations ;
 
 /*Precedencias*/
 precedence left PLUS,MINUS;
@@ -89,7 +88,15 @@ program ::= declarations:sim1 END_STRUCT functions:sim2 {:
 		error_semantico("No se ha declarado una funcion main");
 	} 
 		
+	Map<String, FunctionDef> uncheckedCalls = tabla.getUncheckedCalls();
+	if(uncheckedCalls.size()>0){
 	
+		for (Map.Entry<String, FunctionDef> entry : uncheckedCalls.entrySet()) {
+			FunctionDef def = entry.getValue();
+		    System.out.println("Error semantico. No se ha declarado la funcion "+entry.getKey()+
+		    ". Linea "+def.getLine()+" Columna "+def.getCol());
+		}
+	}
 	JavaGenerator jGen = new JavaGenerator();
 	jGen.addCode(sim1.getCode()+"\n"+sim2.getCode());
 	jGen.closeMain();
@@ -392,16 +399,21 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	Simbolo function = null;
  	if(tabla.buscarGlobal(s)==null){
+ 		FunctionDef def = new FunctionDef();
+ 		def.setName(s);
+ 		
  		function = new Simbolo(s, null);
 		function.setTipo("FUNCTION");
 		for (int i=l.size()-1 ;i>-1;i--){
 			Simbolo sim = (Simbolo) l.get(i);
 			function.addParamType( sim.getTipo());
+			def.addParam(l.size()-1-i,sim.getTipo());
 		}
 		tabla.insertar(function);
 		function.setTipo("FUNCTION");
 		function.setTipoRetorno(sim1.getTipo());
  		tabla.set();
+ 		tabla.check(def);
  		
  		for (int i=l.size()-1 ;i>-1;i--){
 			Simbolo sim = (Simbolo) l.get(i);
@@ -540,16 +552,12 @@ conditions ::= condition:sim1 {:
 	//Code
 	RESULT = sim1;
 	
-:} | condition:sim1 logic_operator conditions:sim2 {: 
+:} | condition:sim1 logic_operator:simOP conditions:sim2 {: 
 
 	//Code
 	RESULT=sim2;
-	sim2.setCode(sim1.getCode()+sim2.getCode());
+	sim2.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
 	
-:} | OPEN_PAR condition:sim CLOSE_PAR{:
-	//Code
-	RESULT=sim;
-	sim.setCode("("+sim.getCode()+")");
 :};
 
 condition ::= id:sim1 validate_operator:sim2 id:sim3 {: 
@@ -605,7 +613,16 @@ id ::= ID:s {:
 				Simbolo function=tabla.buscarGlobal(s);
 				
 	 			if(function==null){
-					error_semantico("La función "+s+" no existe");	
+					//error_semantico("La función "+s+" no existe");
+					FunctionDef def = new FunctionDef();
+					def.setName(s);
+					for(int i=tipos.size()-1; i>-1;i--){
+						Simbolo simb = (Simbolo)tipos.get(i);
+						def.addParam(tipos.size()-1-i, simb.getTipo());
+					}
+					def.setLine(analizadorLexico.linea());
+					def.setCol(analizadorLexico.columna());
+					tabla.addUncheckedCall(def);
 				}else if(!function.getTipo().equals("FUNCTION")){
 					error_semantico(s+" no es una función");
 				}else{
@@ -634,12 +651,16 @@ id ::= ID:s {:
 					Simbolo aux = (Simbolo)tipos.get(i);
 					list+=aux.getCode()+", ";
 				}
-				Simbolo lastSymbol =(Simbolo)tipos.get(0);
-				list+=lastSymbol.getCode();
+				if(tipos.size()>0){
+					Simbolo lastSymbol =(Simbolo)tipos.get(0);
+					list+=lastSymbol.getCode();
+				}
+				
 				
 				sim.setCode(s+"("+list+")");
 				
-	   :} |ID:s index:sim {: 
+	   :} |ID:s index:sim {:
+	   		int dimension =0; 
 	   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 			Simbolo simbolo = tabla.buscarGlobal(s);
 			
@@ -647,13 +668,13 @@ id ::= ID:s {:
 				error_semantico("El array "+s+" no existe");	
 			}else{
 				sim.setTipo(simbolo.getTipo());
+				dimension =sim.getDimension();
 				sim.setDimension(simbolo.getDimension() - sim.getDimension());
 				RESULT = sim;
 			}
 			
 			//Code
 			String codeArray="";
-			int dimension = simbolo.getDimension();
 	 		for(int j=dimension-1;j>-1;j--){
 	 			codeArray+="["+sim.getDim(j)+"]";
 	 		}
@@ -746,11 +767,22 @@ expression ::= assign:sim {:
 	RESULT = sim;
 :} | ID:s OPEN_PAR arg_list:tipos CLOSE_PAR  {:
 				
+				Simbolo sim = new Simbolo();
 				TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 				Simbolo function=tabla.buscarGlobal(s);
 				
 	 			if(function==null){
-					error_semantico("La función "+s+" no existe");	
+					//error_semantico("La función "+s+" no existe");
+					FunctionDef def = new FunctionDef();
+					def.setName(s);
+					for(int i=tipos.size()-1; i>-1;i--){
+						Simbolo simb = (Simbolo)tipos.get(i);
+						def.addParam(tipos.size()-1-i, simb.getTipo());
+					}
+					def.setLine(analizadorLexico.linea());
+					def.setCol(analizadorLexico.columna());
+					tabla.addUncheckedCall(def);
+					
 				}else if(!function.getTipo().equals("FUNCTION")){
 					error_semantico(s+" no es una función");
 				}else{
@@ -763,13 +795,14 @@ expression ::= assign:sim {:
 						Simbolo simb = (Simbolo)tipos.get(i);
 						if(!expectedTipos.get(tipos.size()-1-i).equals(simb.getTipo())){
 							error_semantico("El parametro "+(tipos.size()-1-i)+
-							"de la funcion "+ s+" ha de ser de tipo "+
-							expectedTipos.get(tipos.size()-i));
+							" de la funcion "+ s+" ha de ser de tipo "+
+							expectedTipos.get(tipos.size()-1-i));
 						}
 					}
+					sim.setTipo(function.getTipoRetorno());
 				}
-				Simbolo sim = new Simbolo();
-				sim.setTipo(function.getTipoRetorno());
+				
+				
 				RESULT = sim;
 				
 				//Code
@@ -779,8 +812,11 @@ expression ::= assign:sim {:
 					Simbolo aux = (Simbolo)tipos.get(i);
 					list+=aux.getCode()+", ";
 				}
-				Simbolo lastSymbol =(Simbolo)tipos.get(0);
-				list+=lastSymbol.getCode();
+				if(tipos.size()>0){
+					Simbolo lastSymbol =(Simbolo)tipos.get(0);
+					list+=lastSymbol.getCode();
+				}
+				
 				
 				sim.setCode(s+"("+list+")");
 :} | create_struct:sim  {: 
@@ -788,10 +824,18 @@ expression ::= assign:sim {:
 	//Code 
 	RESULT = sim;
 
-:} | read:sim {: 
-
-		RESULT = sim;
+:} | READ OPEN_PAR ID:s CLOSE_PAR {: 
 	
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	Simbolo simbolo=tabla.buscarGlobal(s);
+	if(simbolo==null){
+		error_semantico("La variable "+s+" no se ha declarado");
+	}
+	//Code
+	
+	RESULT= new Simbolo();
+	
+	RESULT.setCode(tabla.getReadCode(simbolo));
 :} | PRINT OPEN_PAR print:sim1 CLOSE_PAR {:
  	
  	//Code
@@ -810,21 +854,6 @@ expression ::= assign:sim {:
 	RESULT = sim;
 	
 :};
-
-read ::= READ OPEN_PAR ID:s CLOSE_PAR{:
-TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
-	Simbolo simbolo=tabla.buscarGlobal(s);
-			
-	if(simbolo==null){
-		error_semantico("La variable "+s+" no existe");
-	}
-	
-	//Code
-	
-	RESULT= new Simbolo();
-	RESULT.setCode(tabla.getReadCode(simbolo));
-	
-:} ;
  
 assign ::= ID:s ASSIGN numeric_expr:sim {: 
 				
@@ -841,6 +870,13 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 					}else if(simbolo.getDimension()!=sim.getDimension()){
 						error_semantico("No se puede asignar una variable de dimensión "+
 						sim.getDimension()+" a una variable de dimensión "+simbolo.getDimension());
+					}else if(simbolo.getTipo().equals("STRUCT")){
+						String type1=simbolo.getStructInstance().getStructType();
+						String type2=sim.getStructInstance().getStructType();
+						if(!type1.equals(type2)){
+							error_semantico("No se puede asignar una struct de tipo "+
+						type2+" a una struct de tipo "+type1);
+						}
 					}
 				}
 				
@@ -863,10 +899,11 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 						sim2.getTipo()+" a una variable de tipo "+expectedTipo);
 						
 					}else{
+					
 						int currentDim=simbolo.getDimension()-sim1.getDimension();
 						if(currentDim!=sim2.getDimension()){
 							error_semantico("No se ha puede asignar una variable de dimension "+
-							sim2.getDimension()+" a una variable de dimension "+sim1.getDimension());
+							sim2.getDimension()+" a una variable de dimension "+currentDim);
 						}
 					}
 				}
@@ -938,11 +975,8 @@ numeric_expr ::= numeric_expr:sim1 operator:simOP numeric_expr:sim2 {:
 					}
 					
 					//Code
-					//TODO pow
 					if(simOP.getCode().equals("^")){
-						String code ="Math.pow(";
-						code +=sim1.getCode()+", "+sim2.getCode()+")";
-						RESULT.setCode(code);
+						RESULT.setCode("Math.pow("+sim1.getCode()+","+sim2.getCode()+")");
 					}else{
 						RESULT.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
 					}
