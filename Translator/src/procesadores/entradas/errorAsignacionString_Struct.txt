@@ -1,0 +1,25 @@
+integer $a;
+integer $arr[2][2];
+real $r;
+string $s;
+character $c;
+bool $b;
+
+struct $thing{
+	real $number;
+	integer $number2;
+	bool $booleano;
+	string $cadena;
+	character $letra;
+	integer $arrayStruct[2][3];
+};
+endStructs
+
+function integer $main(){
+	struct $thing $t;
+	
+	$s=$t;
+
+
+	return 0;
+}
