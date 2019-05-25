@@ -44,7 +44,7 @@ public class Simbolo {
 	
 	public void addParamType(String type) {
 		this.paramTypes.add(type);
-		System.out.println("Params "+this.paramTypes.toString());
+		//System.out.println("Params "+this.paramTypes.toString());
 	}
 	
 	public List<String> getParamTypes(){

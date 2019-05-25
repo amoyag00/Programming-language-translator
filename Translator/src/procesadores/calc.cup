@@ -10,17 +10,17 @@ parser code {:
 
 Yylex analizadorLexico;
 String filename;
-
 public static void main(String[] argv){
-	if (argv.length == 0) {
-		      System.out.println("Uso : java Parser  <inputfile)>");
-		    }
-	else{
+	if (argv.length <2) {
+		      System.out.println("Uso : java Parser  <inputfile> <debugMode>");
+	}else{
 	try {
+		
 		TablaSimbolos tabla = new TablaSimbolos();
 		java.io.FileInputStream stream = new java.io.FileInputStream(argv[0]);
 	    java.io.Reader reader = new java.io.InputStreamReader(stream);
 		Yylex analizadorLexico= new Yylex(reader,tabla);
+		analizadorLexico.setDebugMode(Boolean.parseBoolean(argv[1]));
 		Parser parserObj = new Parser();
 		parserObj.filename = argv[0];
 		parserObj.analizadorLexico=analizadorLexico;
@@ -659,7 +659,8 @@ id ::= ID:s {:
 				
 				sim.setCode(s+"("+list+")");
 				
-	   :} |ID:s index:sim {: 
+	   :} |ID:s index:sim {:
+	   		int dimension =0; 
 	   		TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 			Simbolo simbolo = tabla.buscarGlobal(s);
 			
@@ -667,13 +668,13 @@ id ::= ID:s {:
 				error_semantico("El array "+s+" no existe");	
 			}else{
 				sim.setTipo(simbolo.getTipo());
+				dimension =sim.getDimension();
 				sim.setDimension(simbolo.getDimension() - sim.getDimension());
 				RESULT = sim;
 			}
 			
 			//Code
 			String codeArray="";
-			int dimension = simbolo.getDimension();
 	 		for(int j=dimension-1;j>-1;j--){
 	 			codeArray+="["+sim.getDim(j)+"]";
 	 		}
@@ -869,6 +870,13 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 					}else if(simbolo.getDimension()!=sim.getDimension()){
 						error_semantico("No se puede asignar una variable de dimensión "+
 						sim.getDimension()+" a una variable de dimensión "+simbolo.getDimension());
+					}else if(simbolo.getTipo().equals("STRUCT")){
+						String type1=simbolo.getStructInstance().getStructType();
+						String type2=sim.getStructInstance().getStructType();
+						if(!type1.equals(type2)){
+							error_semantico("No se puede asignar una struct de tipo "+
+						type2+" a una struct de tipo "+type1);
+						}
 					}
 				}
 				
@@ -891,10 +899,11 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 						sim2.getTipo()+" a una variable de tipo "+expectedTipo);
 						
 					}else{
+					
 						int currentDim=simbolo.getDimension()-sim1.getDimension();
 						if(currentDim!=sim2.getDimension()){
 							error_semantico("No se ha puede asignar una variable de dimension "+
-							sim2.getDimension()+" a una variable de dimension "+sim1.getDimension());
+							sim2.getDimension()+" a una variable de dimension "+currentDim);
 						}
 					}
 				}
