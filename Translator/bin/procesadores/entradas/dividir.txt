@@ -1,69 +1,60 @@
 integer $a;
 integer $b;
+real $r;
 endStructs
 
 function integer $main(){
 	integer $i;
-	$a=3;
-	$b=2;
-	$i = $a - $b;
+	$a=6;
+	$b=3;
+	$i = $a / $b;
 	return $i;
 }
 
 function integer $prueba1(){
 	integer $i;
-	$a=2;
-	$b=3;
-	$i = $a - $b;
+	$a=6;
+	$i = $a / 3;
 	return $i;
 }
 
 function integer $prueba2(){
 	integer $i;
-	
-	$i = 2 - 3;
+	$a=3;
+	$i = 6 / $a;
 	return $i;
 }
 
 function integer $prueba3(){
 	integer $i;
-	$a=2;
-	$b= -3;
-	$i = $a - $b;
+	$i = 6 / 3;
 	return $i;
 }
 
-function integer $prueba4(){
-	integer $i;
-	$b=2;
-	$i = 1 - (2 - 3);
-	return $i;
-}
-
-function integer $prueba5(){
-	integer $i;
-	$i=2;
-	$i = $i + 3;
-	return $i;
-}
-
-function integer $prueba6(){
-	integer $i;
-	$i=2;
-	$i = $i - 3;
+function real $prueba6(){
+	real $i;
+	$r=2.5;
+	$i = $r / 2;
 	return $i;
 }
 
 function real $prueba7(){
 	real $i;
-	$i=2;
-	$i = $i - 3.3;
+	$a=2;
+	$b=3;
+	$i = $a / $b;
 	return $i;
 }
 
 function real $prueba8(){
 	real $i;
-	$i = 3.3 - 2.2;
+	$i = 2 / 3;
 	return $i;
-
 }
+
+function integer $prueba9(){
+	integer $i;
+	$i = 2 / (4 / 2);
+	return $i;
+}
+

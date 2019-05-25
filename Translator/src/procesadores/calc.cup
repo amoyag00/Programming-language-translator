@@ -427,9 +427,11 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
 		 	}
 		 	Simbolo aux = (Simbolo)l.get(0);
 		 	code += aux.getCode();
-		 	code += "){\n";
+		 	
 		 	
 	 	}
+	 	
+	 	code += "){\n";
  	}
  	
  	function.setCode(code);
@@ -892,7 +894,7 @@ assign ::= ID:s ASSIGN numeric_expr:sim {:
 		   		
 		   :};
 
-numeric_expr ::= numeric_expr:sim1 operator:simOP id:sim2 {:
+numeric_expr ::= numeric_expr:sim1 operator:simOP numeric_expr:sim2 {:
 					
 					TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 					
