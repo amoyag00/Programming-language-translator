@@ -7,6 +7,7 @@ public class TablaSimbolos {
 	Stack bloques;
 	Map<String, StructDefinition> structDefinitions;
 	Map<String, StructInstance> structInstances;
+	Map<String,FunctionDef> uncheckedCalls;
 
 	public TablaSimbolos() {
 		HashMap tablaprincipal = new HashMap();
@@ -16,6 +17,7 @@ public class TablaSimbolos {
 
 		structDefinitions = new HashMap<String, StructDefinition>();
 		structInstances = new HashMap<String, StructInstance>();
+		uncheckedCalls = new HashMap<String, FunctionDef>();
 	}
 
 	public Simbolo insertar(Simbolo s) {
@@ -232,4 +234,26 @@ public class TablaSimbolos {
 				
 		return code;
 	}
+	
+	public void addUncheckedCall(FunctionDef def) {
+		this.uncheckedCalls.put(def.getName(), def);
+	}
+	/**
+	 * Elimina todas las llamadas a la funcion definida en def
+	 * 
+	 * @param def
+	 */
+	public void check(FunctionDef def) {
+		//System.out.println("Before: "+uncheckedCalls.size());
+		uncheckedCalls.entrySet().removeIf(entry -> entry.getValue().equals(def));
+		//System.out.println("After: "+uncheckedCalls.size());
+	}
+
+	public Map<String, FunctionDef> getUncheckedCalls() {
+		return uncheckedCalls;
+	}
+
+
+	
+	
 }
