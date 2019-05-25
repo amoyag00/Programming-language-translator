@@ -3,6 +3,7 @@ import java_cup.runtime.*;
 import java.io.*;
 import java.util.Stack;
 import java.util.List;
+import java.util.Map;
 
 parser code {:
 
@@ -85,7 +86,15 @@ program ::= declarations:sim1 END_STRUCT functions:sim2 {:
 		error_semantico("No se ha declarado una funcion main");
 	} 
 		
+	Map<String, FunctionDef> uncheckedCalls = tabla.getUncheckedCalls();
+	if(uncheckedCalls.size()>1){
 	
+		for (Map.Entry<String, FunctionDef> entry : uncheckedCalls.entrySet()) {
+			FunctionDef def = entry.getValue();
+		    error_semantico("No se ha declarado la funcion "+entry.getKey()+
+		    ". Linea "+def.getLine()+" Columna "+def.getCol());
+		}
+	}
 	JavaGenerator jGen = new JavaGenerator();
 	jGen.addCode(sim1.getCode()+"\n"+sim2.getCode());
 	jGen.closeMain();
@@ -388,16 +397,21 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
 	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
 	Simbolo function = null;
  	if(tabla.buscarGlobal(s)==null){
+ 		FunctionDef def = new FunctionDef();
+ 		def.setName(s);
+ 		
  		function = new Simbolo(s, null);
 		function.setTipo("FUNCTION");
 		for (int i=l.size()-1 ;i>-1;i--){
 			Simbolo sim = (Simbolo) l.get(i);
 			function.addParamType( sim.getTipo());
+			def.addParam(l.size()-1-i,sim.getTipo());
 		}
 		tabla.insertar(function);
 		function.setTipo("FUNCTION");
 		function.setTipoRetorno(sim1.getTipo());
  		tabla.set();
+ 		tabla.check(def);
  		
  		for (int i=l.size()-1 ;i>-1;i--){
 			Simbolo sim = (Simbolo) l.get(i);
@@ -597,7 +611,16 @@ id ::= ID:s {:
 				Simbolo function=tabla.buscarGlobal(s);
 				
 	 			if(function==null){
-					error_semantico("La función "+s+" no existe");	
+					//error_semantico("La función "+s+" no existe");
+					FunctionDef def = new FunctionDef();
+					def.setName(s);
+					for(int i=tipos.size()-1; i>-1;i--){
+						Simbolo simb = (Simbolo)tipos.get(i);
+						def.addParam(tipos.size()-1-i, simb.getTipo());
+					}
+					def.setLine(analizadorLexico.linea());
+					def.setCol(analizadorLexico.columna());
+					tabla.addUncheckedCall(def);
 				}else if(!function.getTipo().equals("FUNCTION")){
 					error_semantico(s+" no es una función");
 				}else{
@@ -742,7 +765,17 @@ expression ::= assign:sim {:
 				Simbolo function=tabla.buscarGlobal(s);
 				
 	 			if(function==null){
-					error_semantico("La función "+s+" no existe");	
+					//error_semantico("La función "+s+" no existe");
+					FunctionDef def = new FunctionDef();
+					def.setName(s);
+					for(int i=tipos.size()-1; i>-1;i--){
+						Simbolo simb = (Simbolo)tipos.get(i);
+						def.addParam(tipos.size()-1-i, simb.getTipo());
+					}
+					def.setLine(analizadorLexico.linea());
+					def.setCol(analizadorLexico.columna());
+					tabla.addUncheckedCall(def);
+						
 				}else if(!function.getTipo().equals("FUNCTION")){
 					error_semantico(s+" no es una función");
 				}else{
@@ -780,11 +813,18 @@ expression ::= assign:sim {:
 	//Code 
 	RESULT = sim;
 
-:} | READ OPEN_PAR type COMMA id CLOSE_PAR {: 
+:} | READ OPEN_PAR ID:s CLOSE_PAR {: 
+	
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	Simbolo simbolo=tabla.buscarGlobal(s);
+	if(simbolo==null){
+		error_semantico("La variable "+s+" no se ha declarado");
+	}
 	//Code
-	//TODO
+	
 	RESULT= new Simbolo();
-	RESULT.setCode("");
+	
+	RESULT.setCode(tabla.getReadCode(simbolo));
 :} | PRINT OPEN_PAR print:sim1 CLOSE_PAR {:
  	
  	//Code
@@ -916,8 +956,12 @@ numeric_expr ::= numeric_expr:sim1 operator:simOP numeric_expr:sim2 {:
 					}
 					
 					//Code
-					//TODO pow
-					RESULT.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
+					if(simOP.getCode().equals("^")){
+						RESULT.setCode("Math.pow("+sim1.getCode()+","+sim2.getCode()+")");
+					}else{
+						RESULT.setCode(sim1.getCode()+simOP.getCode()+sim2.getCode());
+					}
+					
 					
 				 :} | id:sim {: 
 				 
