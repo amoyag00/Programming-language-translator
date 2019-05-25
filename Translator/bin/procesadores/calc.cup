@@ -10,6 +10,7 @@ parser code {:
 
 
 Yylex analizadorLexico;
+String filename;
 
 public static void main(String[] argv){
 	if (argv.length == 0) {
@@ -22,6 +23,7 @@ public static void main(String[] argv){
 	    java.io.Reader reader = new java.io.InputStreamReader(stream);
 		Yylex analizadorLexico= new Yylex(reader,tabla);
 		Parser parserObj = new Parser();
+		parserObj.filename = argv[0];
 		parserObj.analizadorLexico=analizadorLexico;
 		parserObj.setScanner(parserObj.analizadorLexico);
 		parserObj.parse();

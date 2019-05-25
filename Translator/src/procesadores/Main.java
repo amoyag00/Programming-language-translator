@@ -1,4 +1,6 @@
 package procesadores;
+import java.util.Scanner;
+import java.util.Locale;
 public class Main {
 double $a = 0.0;
 public class $things{
@@ -44,4 +46,5 @@ $c = $a+$b;
 ;
 return ;
 }
+
 }
