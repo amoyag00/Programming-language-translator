@@ -56,7 +56,7 @@ function integer $prueba5(){
 function integer $prueba6(){
 	integer $i;
 	$i=2;
-	$i = $i + 3.3;
+	$i = $i + 3;
 	return $i;
 }
 
