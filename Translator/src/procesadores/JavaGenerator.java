@@ -9,9 +9,9 @@ public class JavaGenerator {
 	private String code;
 	private String filename;
 
-	public JavaGenerator(String filename) {
-		this.filename = filename;
-		this.code = "package generated;\n"
+	public JavaGenerator() {
+		this.filename = "Main";
+		this.code = "package procesadores;\n"
 				+ "import java.util.Scanner;\n"+
 				"import java.util.Locale;\n"+
 				"public class "+filename+" {\nScanner in;";
@@ -21,7 +21,7 @@ public class JavaGenerator {
 		
 		try {
 			
-			FileOutputStream out = new FileOutputStream("/home/alex/eclipse-workspace/ProcesadoresEndgame/src/generated/"+this.filename+".java");
+			FileOutputStream out = new FileOutputStream(System.clearProperty("user.dir")+"/src/procesadores/"+this.filename+".java");
 			out.write(this.code.getBytes());
 			out.close();
 		} catch (IOException e) {

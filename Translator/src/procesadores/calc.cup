@@ -8,7 +8,7 @@ import java.util.Map;
 parser code {:
 
 
-Yylex analizadorLexico;
+Yylex analizadorLexico;;
 public static void main(String[] argv){
 	if (argv.length <2) {
 		      System.out.println("Uso : java Parser  <inputfile> <debugMode>");
@@ -21,6 +21,7 @@ public static void main(String[] argv){
 		Yylex analizadorLexico= new Yylex(reader,tabla);
 		analizadorLexico.setDebugMode(Boolean.parseBoolean(argv[1]));
 		Parser parserObj = new Parser();
+		
 		parserObj.analizadorLexico=analizadorLexico;
 		parserObj.setScanner(parserObj.analizadorLexico);
 		parserObj.parse();
@@ -95,6 +96,7 @@ program ::= declarations:sim1 END_STRUCT functions:sim2 {:
 		    ". Linea "+def.getLine()+" Columna "+def.getCol());
 		}
 	}
+	
 	JavaGenerator jGen = new JavaGenerator();
 	jGen.addCode(sim1.getCode()+"\n"+sim2.getCode());
 	jGen.closeMain();
@@ -429,7 +431,7 @@ function ::= FUNCTION returntype:sim1 ID:s OPEN_PAR params:l CLOSE_PAR{:
  		if(function.getParamTypes().size()!=0){
 			error_semantico("La funcion main no puede tener argumentos");
 		}
-		code+="public static void main(String [] args){\nMain main = new Main();\n"+
+		code+="public static void main(String [] args){\n"+"Main"+" main = new "+"Main"+"();\n"+
 			"main.$main();\n}\n";
  		code+="public void $main(){\n";
  	}else{

@@ -4,9 +4,8 @@ integer $c,$otroarray[2][5][1],$unarray [9];
 character $char1, $char2;
 integer $elarray[4][5];
 real $g;
-//Jaja si
-/* soi llo
-  el cucho */
+//multilinea
+/* multilinea */
 struct $things{
    real $number;
    real $number2;
@@ -26,17 +25,34 @@ struct $things2{
 
 
 endStructs
+
+function integer $prueba(){
+	integer $i;
+	$i=0;
+	$prueba();
+	return 0;
+}
 function real $hola (real $param1, real $param2){
 	real $wenas;
 	bool $xd;
 	real $numeros[3][4];
+	integer $numerosInt[3][4];
 	struct $things $thing;
 	$param1 = $param1 + $param2;
-	
 	return $numeros[0][3];
 	
 }
 
+function real $hola2 (){
+	real $wenas;
+	bool $xd;
+	real $numeros[3][4];
+	struct $things $thing;
+	//$param1 = $param1 + $param2;
+	$hola2();
+	return $numeros[0][3];
+	
+}
 
 
 function real $main(){
@@ -45,31 +61,38 @@ function real $main(){
 	string $cadena;
 	real $d, $e, $f;
 	integer $nombre2 [2][5][4];
-	integer $array2 [2][6][4];
+	integer $array2 [2][6][6];
    struct $things $thing;
    struct $things $thing2;
+   struct $things2 $thing3;
    
    $thing.$number = 2.0;
    $thing.$number2 = 4.0;
-   $thing.$number3 = 5;
+   $thing.$number3 = $array2[1][2][4];
+   $thing=$thing2;
+   $a = $array2[1][2][1];
 	$a = $a+$a;
 	$d = -$a;
+	
 	$d = $a^$b+(5^$thing.$number2);
    print("Escribe un número");
 
    read($a);
-
+	if( $a == $a||$d>$a){
+		$d = $d;
+	};
    if($thing.$number3 < $thing.$number){
       $thing.$number = $thing.$number + $thing.$number3; 
    }else{
-      $thing.$number2 = $thing.$number2 + $thing.$number3; 
+      $thing.$number2 = $thing.$number2 + $thing.$number3;
+      if( $thing.$number3 < $thing.$number){
+      	$a=$a;
+      };
    };
    
-   iter($nombre2[3][3][2]==$b){
-   		$nombre2 = $array2;
-   };
    
-   $hola($d, $d);
+   
+  // $hola($d, $d);
 	return $thing.$number2;
 }
 
