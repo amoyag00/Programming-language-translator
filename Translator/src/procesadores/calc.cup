@@ -698,6 +698,37 @@ index ::= OPEN_BRACKETS NUM_INT:num CLOSE_BRACKETS index:sim {:
 	simbolo.setCode("[]");
 	simbolo.addDim(num);
 	
+:}| OPEN_BRACKETS ID:s CLOSE_BRACKETS{:
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	Simbolo simbolo=tabla.buscarGlobal(s);
+	if(simbolo==null){
+		error_semantico("La variable "+s+" no se ha declarado");
+	}else if(!simbolo.getTipo().equals("INT")){
+		error_semantico("Las variables de acceso a elementos de arrays han de ser de tipo integer ");
+		
+	}
+	
+	//Code
+	Simbolo sim = new Simbolo();
+	sim.setDimension(1);
+	sim.setCode("[]");
+	sim.addDim(s);
+	RESULT=sim;
+	
+:}| OPEN_BRACKETS ID:s CLOSE_BRACKETS index:sim{:
+	sim.increaseDim();
+	TablaSimbolos tabla = this.parser.analizadorLexico.getTabla();
+	Simbolo simbolo=tabla.buscarGlobal(s);
+	if(simbolo==null){
+		error_semantico("La variable "+s+" no se ha declarado");
+	}else if(!simbolo.getTipo().equals("INT")){
+		error_semantico("Las variables de acceso a elementos de arrays han de ser de tipo integer ");
+		
+	}
+	
+	//Code
+	sim.setCode(sim.getCode()+" []");
+	sim.addDim(s);
 :};   
 
 validate_operator ::= EQUAL {: 

@@ -20,18 +20,18 @@ public class Simbolo {
 	
 	//Only arrays
 	int dimension;
-	public ArrayList<Integer> dims;
+	public ArrayList<String> dims;
 	
 	public Simbolo() {
 		this.paramTypes= new ArrayList<String>();
-		this.dims= new ArrayList<Integer>();
+		this.dims= new ArrayList<String>();
 	}
 	
 	public Simbolo(String nombre, Integer valor){
 		this.nombre = nombre;
 		this.valor = valor;
 		this.paramTypes= new ArrayList<String>();
-		this.dims= new ArrayList<Integer>();
+		this.dims= new ArrayList<String>();
 	 }
 	
 	public Simbolo(String nombre, Integer valor, int line, int col){
@@ -120,15 +120,19 @@ public class Simbolo {
 		this.javaCode = javaCode;
 	}
 	
-	public void addDim(int dim) {
+	public void addDim(String dim) {
 		this.dims.add(dim);
 	}
 	
-	public int getDim(int i) {
+	public void addDim(int dim) {
+		this.dims.add(String.valueOf(dim));
+	}
+	
+	public String getDim(int i) {
 		if(i<this.dims.size()) {
 			return this.dims.get(i);
 		}
-		return -1;
+		return "0";
 	}
 	
 }
