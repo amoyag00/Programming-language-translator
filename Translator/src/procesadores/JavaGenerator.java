@@ -19,7 +19,7 @@ public class JavaGenerator {
 	public void generate() {
 		
 		try {
-			FileOutputStream out = new FileOutputStream(System.getProperty("user.dir")+"/src/procesadores/"+this.filename+".java");
+			FileOutputStream out = new FileOutputStream(System.getProperty("user.dir")+"/src/procesadores/Main.java");
 			out.write(this.code.getBytes());
 			out.close();
 		} catch (IOException e) {
@@ -35,10 +35,4 @@ public class JavaGenerator {
 	public void addCode(String code) {
 		this.code +=code;
 	}
-	
-	public void addFile(String name) {
-		this.filename += name.replace(".txt", "");
-	}
-
-
 }
