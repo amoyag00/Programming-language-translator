@@ -205,7 +205,7 @@ public class TablaSimbolos {
 	}
 	
 	public String getReadCode(Simbolo simbolo) {
-		String code ="Scanner in = new Scanner(System.in).useLocale(Locale.US);\n"+
+		String code ="in = new Scanner(System.in).useLocale(Locale.US);\n"+
 				simbolo.getNombre()+" = ";
 		String tipo = simbolo.getTipo();
 		

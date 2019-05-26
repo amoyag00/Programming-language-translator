@@ -51,12 +51,6 @@ function integer $prueba1(){
 
 	$t.$letra = 'l';
 	
-	$t.$arrayStruct[0][0]=1;
-	$t.$arrayStruct[0][1]=2;
-	$t.$arrayStruct[0][2]=3;
-	$t.$arrayStruct[1][0]=4;
-	$t.$arrayStruct[1][1]=5;
-	$t.$arrayStruct[1][2]=6;
 	
 	return 0;
 }

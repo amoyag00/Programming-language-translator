@@ -9,17 +9,19 @@ public class JavaGenerator {
 	private String code;
 	private String filename;
 
-	public JavaGenerator() {
-		this.code = "package procesadores;\n"
+	public JavaGenerator(String filename) {
+		this.filename = filename;
+		this.code = "package generated;\n"
 				+ "import java.util.Scanner;\n"+
 				"import java.util.Locale;\n"+
-				"public class Main {\n";
+				"public class "+filename+" {\nScanner in;";
 	}
 
 	public void generate() {
 		
 		try {
-			FileOutputStream out = new FileOutputStream(System.getProperty("user.dir")+"/src/procesadores/Main.java");
+			
+			FileOutputStream out = new FileOutputStream("/home/alex/eclipse-workspace/ProcesadoresEndgame/src/generated/"+this.filename+".java");
 			out.write(this.code.getBytes());
 			out.close();
 		} catch (IOException e) {
@@ -35,4 +37,10 @@ public class JavaGenerator {
 	public void addCode(String code) {
 		this.code +=code;
 	}
+	
+	public void addFile(String name) {
+		this.filename += name.replace(".txt", "");
+	}
+
+
 }
